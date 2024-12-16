@@ -29,3 +29,5 @@ coverage
 
 *.tsbuildinfo
 start_backend.sh
+
+mysql_data

@@ -11,7 +11,7 @@
       </div>
       <div>
         <label for="password">Password:</label>
-        <input v-model="formData.password" type="password" id="password" required minlength="8"  />
+        <input v-model="formData.password" type="password" name="password" id="password" autocomplete="on" required />
       </div>
       <button type="submit">Register</button>
     </form>
@@ -41,18 +41,15 @@ export default {
             'Content-Type': 'application/json',
           },
         });
-
+        
         if (response.data.success) {
           this.responseMessage = response.data.message;
+          this.$router.push('/login')
         } else {
-          this.responseMessage = `Error: ${response.data.message || 'Registration failed'}`;
+          this.responseMessage = `Server Error: ${response.data.message || 'Registration failed'}`;
         }
       } catch (err) {
-        if (err.response && err.response.data && err.response.data.message) {
-          this.responseMessage = `Error: ${err.response.data.message}`;
-        } else {
-          this.responseMessage = `Error: ${err.message}`;
-        }
+        this.responseMessage = `Response Error: ${err.message}`;
       }
     },
   },
