@@ -7,7 +7,7 @@
       </div>
       <div>
         <label for="password">Password:</label>
-        <input v-model="formData.password" type="password" id="password" required />
+        <input v-model="formData.password" type="password" id="password" required/>
       </div>
       <button type="submit">Login</button>
     </form>
@@ -37,8 +37,9 @@ export default {
           },
         });
 
-        if (response.status === 200) {
-          this.responseMessage = 'Login successful!';
+        if (response.data.success) {
+          this.responseMessage = response.data.message;
+          this.$router.push('/');
         } else {
           this.responseMessage = `Error: ${response.data.message || 'Login failed'}`;
         }
