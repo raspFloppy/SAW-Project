@@ -38,6 +38,8 @@ class AuthController {
     }
 
     public function login($email, $password) {
+        session_start();
+
         try {
             $stmt = $this->conn->prepare("SELECT * FROM User WHERE email = :email");
             $stmt->execute(['email' => $email]);
@@ -45,6 +47,11 @@ class AuthController {
 
             if ($user && password_verify($password, $user['password'])) {
                 $token = $this->generateJWT($user);
+                
+                $_SESSION["id"] = $user['id'];
+                $_SESSION["username"] = $user['username'];
+                $_SESSION["loggedin"] = TRUE;
+                
                 return [
                     'success' => true, 
                     'message' => 'Login successful', 
@@ -55,8 +62,7 @@ class AuthController {
                     ]
                 ];
             }
-
-            return ['success' => false, 'message' => 'Invalid credentials'];
+                return ['success' => false, 'message' => 'Invalid credentials'];
         } catch(PDOException $e) {
             return ['success' => false, 'message' => 'Error, cannot login'];
         }
@@ -104,9 +110,14 @@ class AuthController {
         }
     }
 
-    public function logout($token) {
-        // In un'implementazione reale, potresti voler invalidare il token 
-        // memorizzandolo in una blacklist o simile
-        return ['success' => true, 'message' => 'Logout eseguito'];
+    public function logout() {
+        try {
+            session_start();
+            $_SESSION = array();
+            session_destroy();
+            return ['success' => true, 'message' => 'Logout eseguito'];
+        } catch(Exception $e) {
+            return ['success' => false, 'message' => 'Error, cannot clear session'];
+        }
     }
 }

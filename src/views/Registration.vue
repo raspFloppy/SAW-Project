@@ -11,7 +11,7 @@
       </div>
       <div>
         <label for="password">Password:</label>
-        <input v-model="formData.password" type="password" id="password" required />
+        <input v-model="formData.password" type="password" id="password" required minlength="8"  />
       </div>
       <button type="submit">Register</button>
     </form>
@@ -42,7 +42,7 @@ export default {
           },
         });
 
-        if (response.data.success == true) {
+        if (response.data.success) {
           this.responseMessage = response.data.message;
         } else {
           this.responseMessage = `Error: ${response.data.message || 'Registration failed'}`;
