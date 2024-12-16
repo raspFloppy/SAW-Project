@@ -29,6 +29,3 @@ coverage
 
 *.tsbuildinfo
 start_backend.sh
-
-Dockerfile
-docker-compose.yml
