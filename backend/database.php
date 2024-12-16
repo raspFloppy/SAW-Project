@@ -1,7 +1,7 @@
 <?php
 define('DB_HOST', '127.0.0.1');
-define('DB_USER', 'user');
-define('DB_PASS', 'passwd');
+define('DB_USER', 'root');
+define('DB_PASS', 'rootpassword');
 define('DB_NAME', 'saw');
 
 class Database {

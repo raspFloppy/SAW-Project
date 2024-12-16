@@ -42,8 +42,8 @@ export default {
           },
         });
 
-        if (response.status === 200) {
-          this.responseMessage = 'Registration successful!';
+        if (response.data.success == true) {
+          this.responseMessage = response.data.message;
         } else {
           this.responseMessage = `Error: ${response.data.message || 'Registration failed'}`;
         }

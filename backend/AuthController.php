@@ -11,7 +11,6 @@ class AuthController {
     }
 
     public function register($username, $email, $password) {
-        //TODO: this filter does not exists fix it
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             return ['success' => false, 'message' => 'Invalid Email'];
         }
@@ -34,8 +33,7 @@ class AuthController {
             ]);
             return ['success' => true, 'message' => 'Registration Successful'];
         } catch(PDOException $e) {
-            //TODO: more explicit error message
-            return ['success' => false, 'message' => 'Error, cannot register: ' . $e];
+            return ['success' => false, 'message' => 'Cannot register user because: ' . $e];
         }
     }
 
