@@ -39,12 +39,6 @@ class AuthController
         }
     }
 
-    /**
-     * 
-     * @param mixed $email
-     * @param mixed $password
-     * @return array
-     */
     public function login(string $email, string $password): array
     {
         session_start();
@@ -58,6 +52,7 @@ class AuthController
                 $_SESSION["id"] = $user['id'];
                 $_SESSION["username"] = $user['username'];
                 $_SESSION["loggedin"] = true;
+
                 return [
                     'success' => true,
                     'message' => 'Login successful',
@@ -79,7 +74,7 @@ class AuthController
     {
         try {
             session_start();
-            $_SESSION = [];
+            session_unset();
             session_destroy();
             return ['success' => true, 'message' => 'Logout eseguito'];
         } catch (Exception $e) {

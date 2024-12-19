@@ -1,24 +1,3 @@
-<template>
-  <div>
-    <form @submit.prevent="registerUser">
-      <div>
-        <label for="username">Username:</label>
-        <input v-model="formData.username" type="text" id="username" required />
-      </div>
-      <div>
-        <label for="email">Email:</label>
-        <input v-model="formData.email" type="email" id="email" required />
-      </div>
-      <div>
-        <label for="password">Password:</label>
-        <input v-model="formData.password" type="password" name="password" id="password" autocomplete="on" required />
-      </div>
-      <button type="submit">Register</button>
-    </form>
-    <p v-if="responseMessage">{{ responseMessage }}</p>
-  </div>
-</template>
-
 <script>
 import axios from 'axios';
 
@@ -55,6 +34,27 @@ export default {
   },
 };
 </script>
+
+<template>
+  <div>
+    <form @submit.prevent="registerUser">
+      <div>
+        <label for="username">Username:</label>
+        <input v-model="formData.username" type="text" id="username" required />
+      </div>
+      <div>
+        <label for="email">Email:</label>
+        <input v-model="formData.email" type="email" id="email" required />
+      </div>
+      <div>
+        <label for="password">Password:</label>
+        <input v-model="formData.password" type="password" name="password" id="password" autocomplete="on" required />
+      </div>
+      <button type="submit">Register</button>
+    </form>
+    <p v-if="responseMessage">{{ responseMessage }}</p>
+  </div>
+</template>
 
 <style scoped>
 form {
