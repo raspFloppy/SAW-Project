@@ -40,7 +40,7 @@ export const useAuthStore = defineStore('auth', {
 
     logout() {
       try {
-        axios.post('http://localhost:8000/index.php?action=logout');
+        axios.get('http://localhost:8000/index.php?action=logout');
       } catch (error) {
         console.error('Logout error', error);
       }

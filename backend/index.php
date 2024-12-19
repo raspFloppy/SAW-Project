@@ -12,11 +12,13 @@ $action = $_GET['action'] ?? '';
 
 switch ($action) {
     case 'register':
-        $result = $controller->register(
-            $data['username'] ?? '',
-            $data['email'] ?? '',
-            $data['password'] ?? ''
-        );
+        $result =
+            $controller->register(
+                $data['firstname'] ?? '',
+                $data['lastname'] ?? '',
+                $data['email'] ?? '',
+                $data['password'] ?? ''
+            );
         echo json_encode($result);
         break;
 
@@ -34,6 +36,11 @@ switch ($action) {
         echo json_encode($result);
         break;
 
+    case 'show_profile':
+        $headers = getallheaders();
+        $result = $controller->show_profile();
+        echo json_encode($result);
+        break;
     default:
         echo json_encode(['success' => false, 'message' => 'Invalid Action']);
         break;

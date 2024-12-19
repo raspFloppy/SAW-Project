@@ -6,16 +6,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['email'], $_POST['firstname'], $_POST['lastname'], $_POST['pass'], $_POST['confirm'], $_POST['submit'])) {
         $authController = new AuthController();
 
-        $email = $_POST['email'];
-        $username = $_POST['firstname'] . ' ' . $_POST['lastname'];
-        $password = $_POST['pass'];
+        $email = trim($_POST['email']);
+        $firstname = trim($_POST['firstname']);
+        $lastname = trim($_POST['lastname']);
+        $password = trim($_POST['pass']);
+
+        if (strlen($password) < 8) {
+            echo json_encode(['success' => false, 'message' => 'Password too short minimum 8 characters']);
+            exit;
+        }
 
         if ($_POST['pass'] !== $_POST['confirm']) {
             echo json_encode(['success' => false, 'message' => 'Passwords do not match']);
             exit;
         }
 
-        $result = $authController->register($username, $email, $password);
+        $result = $authController->register($firstname, $lastname, $email, $password);
 
         echo json_encode($result);
         exit;

@@ -15,7 +15,7 @@ export default {
         if (!isConfirmed) {
           return
         }
-        await authStore.logout()
+        authStore.logout()
         router.push('/')
       } catch (error) {
         console.error('Logout failed:', error)

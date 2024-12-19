@@ -1,6 +1,7 @@
 <?php
 
-function register($email, $password, $first_name, $last_name, $baseurl) {
+function register($email, $password, $first_name, $last_name, $baseurl)
+{
 
     $email = urlencode($email);
     $first_name = urlencode($first_name);
@@ -11,7 +12,7 @@ function register($email, $password, $first_name, $last_name, $baseurl) {
     $url = "$baseurl/registration.php";
 
     $cookieFile = "cookies";
-    if(!file_exists($cookieFile)) {
+    if (!file_exists($cookieFile)) {
         $fh = fopen($cookieFile, "w");
         fwrite($fh, "");
         fclose($fh);
@@ -31,8 +32,7 @@ function register($email, $password, $first_name, $last_name, $baseurl) {
 
     $result = curl_exec($ch);
 
-    /* Delete comment below to see what is returned */
-    // echo $result;
+    echo $result;
 
     if (curl_errno($ch)) {
         echo 'Error:' . curl_error($ch);

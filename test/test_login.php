@@ -1,6 +1,7 @@
 <?php
 
-function login($email, $pass, $baseurl) {
+function login($email, $pass, $baseurl)
+{
 
     $email = urlencode($email);
     $pass = urlencode($pass);
@@ -9,7 +10,7 @@ function login($email, $pass, $baseurl) {
     $url = "$baseurl/login.php";
 
     $cookieFile = "cookies";
-    if(!file_exists($cookieFile)) {
+    if (!file_exists($cookieFile)) {
         $fh = fopen($cookieFile, "w");
         fwrite($fh, "");
         fclose($fh);
@@ -29,8 +30,7 @@ function login($email, $pass, $baseurl) {
 
     $result = curl_exec($ch);
 
-    /* Delete comment below to see what is returned */
-    // echo $result;
+    echo $result;
 
     if (curl_errno($ch)) {
         echo 'Error:' . curl_error($ch);
