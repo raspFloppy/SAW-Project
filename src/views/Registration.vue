@@ -83,4 +83,12 @@ export default {
       </div>
     </div>
   </div>
+<div>
+  <p>
+  you already have an account 
+  <br />
+  <button class="btn btn-primary" onclick="window.location.href = './login';">login</button>
+</p>
+</div>
+
 </template>
