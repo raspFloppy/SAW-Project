@@ -8,6 +8,9 @@ class AuthController
 
     public function __construct()
     {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
         $this->db = new Database();
         $this->conn = $this->db->getConnection();
     }
@@ -46,7 +49,6 @@ class AuthController
 
     public function login(string $email, string $password): array
     {
-        session_start();
         if ($this->is_user_logged()) {
             return ['success' => false, 'message' => 'A User already logged in'];
         }
@@ -63,7 +65,16 @@ class AuthController
                 $_SESSION["email"] = $user['email'];
                 $_SESSION["loggedin"] = true;
 
-                return ['success' => true, 'message' => 'Login successful'];
+                return [
+                    'success' => true,
+                    'message' => 'Login successful',
+                    'user' => [
+                        'id' => $user['id'],
+                        'firstname' => $user['firstname'],
+                        'lastname' => $user['lastname'],
+                        'email' => $user['email']
+                    ]
+                ];
             }
             return ['success' => false, 'message' => 'Invalid credentials'];
         } catch (PDOException $e) {
@@ -74,7 +85,6 @@ class AuthController
     public function logout(): array
     {
         try {
-            session_start();
             session_unset();
             session_destroy();
             return ['success' => true, 'message' => 'Logout successful'];
@@ -85,8 +95,6 @@ class AuthController
 
     public function show_profile(): array
     {
-        session_start();
-
         if ($this->is_user_logged()) {
             return [
                 'success' => true,
@@ -101,8 +109,6 @@ class AuthController
 
     public function update_profile(string $firstname, string $lastname, string $email): array
     {
-        session_start();
-
         if ($this->is_user_logged()) {
             try {
                 $stmt = $this->conn->prepare("UPDATE User SET firstname = :firstname, lastname = :lastname, email = :email WHERE id = :id");
@@ -128,7 +134,6 @@ class AuthController
 
     private function is_user_logged(): bool
     {
-        session_start();
-        return isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true && isset($_SESSION['id']);
+        return isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true;
     }
 }

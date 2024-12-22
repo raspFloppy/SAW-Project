@@ -31,14 +31,20 @@ switch ($action) {
         break;
 
     case 'logout':
-        $headers = getallheaders();
         $result = $controller->logout();
         echo json_encode($result);
         break;
 
     case 'show_profile':
-        $headers = getallheaders();
         $result = $controller->show_profile();
+        echo json_encode($result);
+        break;
+    case 'update_profile':
+        $result = $controller->update_profile(
+            $data['firstname'] ?? '',
+            $data['lastname'] ?? '',
+            $data['email'] ?? ''
+        );
         echo json_encode($result);
         break;
     default:

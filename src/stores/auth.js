@@ -38,7 +38,7 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    logout() {
+    async logout() {
       try {
         axios.get('http://localhost:8000/index.php?action=logout');
       } catch (error) {
@@ -50,6 +50,38 @@ export const useAuthStore = defineStore('auth', {
 
       localStorage.removeItem('user');
       localStorage.removeItem('isLoggedIn');
+    },
+
+    async updateProfile(firstname, lastname, email) {
+      try {
+        const response = await axios.post('http://localhost:8000/index.php?action=update_profile', 
+          { firstname, lastname, email },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+
+        if (response.data.success) {
+          this.user = {
+            ...this.user,
+            firstname,
+            lastname,
+            email
+          };
+          localStorage.setItem('user', JSON.stringify(response.data.user));
+
+          return { success: true, message: response.data.message };
+        } else {
+          return { success: false, message: response.data.message };
+        }
+      } catch (error) {
+        return { 
+          success: false, 
+          message: error.response?.data?.message || 'Update failed'
+        };
+      }
     },
 
     initializeStore() {
