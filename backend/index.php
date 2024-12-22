@@ -1,8 +1,27 @@
 <?php
+
+session_set_cookie_params([
+    'lifetime' => 3600,
+    'path' => '/',
+    'domain' => '',
+    'secure' => false,
+    'httponly' => true,
+    'samesite' => 'Lax'
+]);
+
+session_start();
+
+$allowed_origin = "http://localhost:5173";
 header("Content-Type: application/json");
-header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Origin: " . $allowed_origin);
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
+header("Access-Control-Allow-Credentials: true");
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
 
 include 'AuthController.php';
 
@@ -12,13 +31,12 @@ $action = $_GET['action'] ?? '';
 
 switch ($action) {
     case 'register':
-        $result =
-            $controller->register(
-                $data['firstname'] ?? '',
-                $data['lastname'] ?? '',
-                $data['email'] ?? '',
-                $data['password'] ?? ''
-            );
+        $result = $controller->register(
+            $data['firstname'] ?? '',
+            $data['lastname'] ?? '',
+            $data['email'] ?? '',
+            $data['password'] ?? ''
+        );
         echo json_encode($result);
         break;
 
@@ -39,6 +57,7 @@ switch ($action) {
         $result = $controller->show_profile();
         echo json_encode($result);
         break;
+
     case 'update_profile':
         $result = $controller->update_profile(
             $data['firstname'] ?? '',
@@ -47,6 +66,7 @@ switch ($action) {
         );
         echo json_encode($result);
         break;
+
     default:
         echo json_encode(['success' => false, 'message' => 'Invalid Action']);
         break;

@@ -8,9 +8,6 @@ class AuthController
 
     public function __construct()
     {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
         $this->db = new Database();
         $this->conn = $this->db->getConnection();
     }
@@ -25,12 +22,19 @@ class AuthController
             return ['success' => false, 'message' => 'Invalid Email'];
         }
 
+        if (empty($firstname) || empty($lastname) || empty($password)) {
+            return ['success' => false, 'message' => 'All fields are required'];
+        }
+
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
         try {
+            $this->conn->beginTransaction();
+
             $stmt = $this->conn->prepare("SELECT * FROM User WHERE email = :email");
             $stmt->execute(['email' => $email]);
             if ($stmt->rowCount() > 0) {
+                $this->conn->rollBack();
                 return ['success' => false, 'message' => 'User already exists'];
             }
 
@@ -41,9 +45,12 @@ class AuthController
                 'email' => $email,
                 'password' => $hashed_password
             ]);
+
+            $this->conn->commit();
             return ['success' => true, 'message' => 'Registration Successful'];
         } catch (PDOException $e) {
-            return ['success' => false, 'message' => "Database error: {$e}"];
+            $this->conn->rollBack();
+            return ['success' => false, 'message' => 'Database error: ' . $e->getMessage()];
         }
     }
 
@@ -53,12 +60,19 @@ class AuthController
             return ['success' => false, 'message' => 'A User already logged in'];
         }
 
+        if (empty($email) || empty($password)) {
+            return ['success' => false, 'message' => 'Email and password are required'];
+        }
+
         try {
             $stmt = $this->conn->prepare("SELECT * FROM User WHERE email = :email");
             $stmt->execute(['email' => $email]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($user && password_verify($password, $user['password'])) {
+                // Regenerate session ID to prevent session fixation
+                session_regenerate_id(true);
+
                 $_SESSION["id"] = $user['id'];
                 $_SESSION["firstname"] = $user['firstname'];
                 $_SESSION["lastname"] = $user['lastname'];
@@ -78,58 +92,101 @@ class AuthController
             }
             return ['success' => false, 'message' => 'Invalid credentials'];
         } catch (PDOException $e) {
-            return ['success' => false, 'message' => 'Error, cannot login'];
+            return ['success' => false, 'message' => 'Database error: ' . $e->getMessage()];
         }
     }
 
     public function logout(): array
     {
+        if (!$this->is_user_logged()) {
+            return ['success' => false, 'message' => 'No user is logged in'];
+        }
+
         try {
-            session_unset();
+            $_SESSION = array();
+
+            if (isset($_COOKIE[session_name()])) {
+                setcookie(session_name(), '', time() - 3600, '/');
+            }
+
             session_destroy();
             return ['success' => true, 'message' => 'Logout successful'];
         } catch (Exception $e) {
-            return ['success' => false, 'message' => 'Error, cannot clear session: ' . $e];
+            return ['success' => false, 'message' => 'Error during logout: ' . $e->getMessage()];
         }
     }
 
     public function show_profile(): array
     {
-        if ($this->is_user_logged()) {
-            return [
-                'success' => true,
+        if (!$this->is_user_logged()) {
+            return ['success' => false, 'message' => 'No user logged, nothing to show'];
+        }
+
+        return [
+            'success' => true,
+            'user' => [
                 'firstname' => $_SESSION['firstname'],
                 'lastname' => $_SESSION['lastname'],
                 'email' => $_SESSION['email']
-            ];
-        }
-
-        return ['success' => false, 'message' => 'No user logged, nothing to show'];
+            ]
+        ];
     }
 
     public function update_profile(string $firstname, string $lastname, string $email): array
     {
-        if ($this->is_user_logged()) {
-            try {
-                $stmt = $this->conn->prepare("UPDATE User SET firstname = :firstname, lastname = :lastname, email = :email WHERE id = :id");
+        if (!$this->is_user_logged()) {
+            return ['success' => false, 'message' => 'No user logged, cannot update profile'];
+        }
+
+        if (empty($firstname) || empty($lastname) || empty($email)) {
+            return ['success' => false, 'message' => 'All fields are required'];
+        }
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return ['success' => false, 'message' => 'Invalid Email'];
+        }
+
+        try {
+            $this->conn->beginTransaction();
+
+            if ($email !== $_SESSION['email']) {
+                $stmt = $this->conn->prepare("SELECT * FROM User WHERE email = :email AND id != :id");
                 $stmt->execute([
-                    'firstname' => $firstname,
-                    'lastname' => $lastname,
                     'email' => $email,
                     'id' => $_SESSION['id']
                 ]);
-
-                $_SESSION['firstname'] = $firstname;
-                $_SESSION['lastname'] = $lastname;
-                $_SESSION['email'] = $email;
-
-                return ['success' => true, 'message' => 'Profile update successful'];
-            } catch (PDOException $e) {
-                return ['success' => false, 'message' => 'Error, cannot update profile: ' . $e];
+                if ($stmt->rowCount() > 0) {
+                    $this->conn->rollBack();
+                    return ['success' => false, 'message' => 'Email already exists'];
+                }
             }
-        }
 
-        return ['success' => false, 'message' => 'No user logged, cannot update profile'];
+            $stmt = $this->conn->prepare("UPDATE User SET firstname = :firstname, lastname = :lastname, email = :email WHERE id = :id");
+            $stmt->execute([
+                'firstname' => $firstname,
+                'lastname' => $lastname,
+                'email' => $email,
+                'id' => $_SESSION['id']
+            ]);
+
+            $_SESSION['firstname'] = $firstname;
+            $_SESSION['lastname'] = $lastname;
+            $_SESSION['email'] = $email;
+
+            $this->conn->commit();
+            return [
+                'success' => true,
+                'message' => 'Profile update successful',
+                'user' => [
+                    'firstname' => $firstname,
+                    'lastname' => $lastname,
+                    'email' => $email
+                ]
+            ];
+        } catch (PDOException $e) {
+            $this->conn->rollBack();
+            return ['success' => false, 'message' => 'Database error: ' . $e->getMessage()];
+        }
     }
 
     private function is_user_logged(): bool
