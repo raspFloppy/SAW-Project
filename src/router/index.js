@@ -5,6 +5,8 @@ import Login from '@/views/Login.vue';
 import Home from '@/views/Home.vue';
 import NotFound from '@/views/NotFound.vue';
 import Dashboard from '@/views/Dashboard.vue';
+import '@fortawesome/fontawesome-free/css/all.css';
+
 
 const routes = [
   {path: '/', component: Home},

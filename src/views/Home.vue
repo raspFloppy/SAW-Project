@@ -1,81 +1,118 @@
 <template>
- <ul class="menu menu-vertical lg:menu-horizontal bg-base-200 rounded-box">
-  <li><a>HTML</a></li>
-  <li><a>CSS</a></li>
-  <li><a>JAVA SCRiPT</a></li>
-  <li><a>PYTHON</a></li>
-  <li><a>C</a></li>
-  <li><a>C++</a></li>
-  <li><a>....</a></li>
+  <ul class="menu menu-vertical lg:menu-horizontal bg-base-200 rounded-box">
+    <li><a>HTML</a></li>
+    <li><a>CSS</a></li>
+    <li><a>JAVA SCRIPT</a></li>
+    <li><a>PYTHON</a></li>
+    <li><a>C</a></li>
+    <li><a>C++</a></li>
+    <li><a>....</a></li>
+  </ul>
 
-</ul>
-
-    <div  class="hero min-h-screen" style="background-image: url('./download.jpeg');">
-  <div class="hero-overlay bg-opacity-60"></div>
-  <div class="hero-content text-neutral-content text-center">
-    <div class="max-w-md">
-      <h1 class="mb-5 text-5xl font-bold">Start Learning Today</h1>
-      <p class="mb-5">
-        Explore tutorials, courses, and resources to build your skills in programming.
-      </p>
-      <button class="btn btn-primary" onclick="window.location.href = './registration';">Get Started</button>
+  <div class="hero min-h-screen" :style="{ backgroundImage: `url(${backgroundImage})` }">
+    <div class="hero-overlay bg-opacity-60"></div>
+    <div class="hero-content text-neutral-content text-center">
+      <div class="max-w-md">
+        <h1 class="mb-5 text-5xl font-bold">Start Learning Today</h1>
+        <p class="mb-5">
+          Explore tutorials, courses, and resources to build your skills in programming.
+        </p>
+        <button class="btn btn-primary" onclick="window.location.href = './registration';">Get Started</button>
+      </div>
     </div>
   </div>
-</div>
-<div class="flex w-full flex-col lg:flex-row">
-  <div class="card bg-base-300 rounded-box grid h-320 flex-grow place-items-center">
-    <div  style="padding:3%;">
-  <h1 style="font-size:100px;font-weight:7000;margin-top:-18px!important;">HTML</h1>
-  <p style="font-size:19px;">The language for building web pages</p>
-  <a href="..."  style="margin-bottom:2px;">Learn HTML</a><br>
-  <a style="position:relative;overflow:visible;margin-bottom:1px;" href="..." >Video Tutorial</a><br>
-  <a href="https://campus.w3schools.com/collections/certifications/products/html-certificate" target="_blank" class="w3-button ga-fp w3-block ws-pink ref-button ws-pink-hover" title="Add HTML Certification">Get Certified</a><br>
 
-</div>
+  <div>
+    <h1 class="text-5xl font-bold text-center">Our courses</h1>
   </div>
-  <div class="divider lg:divider-horizontal">--></div>
-  <div class="card bg-base-300 rounded-box grid h-320 flex-grow place-items-center">
-    <div  style="padding:3%">
-  <div  style="padding:16px;">
-    <h1 style="font-size:50px;font-weight:700;">HTML EXAMPEL</h1>   
-    <div  style="height:300px">
-&lt;!DOCTYPE html&gt;<br>
-&lt;html&gt;<br>&lt;head&gt;<br>
-&lt;title&gt;HTML Tutorial&lt;/title&gt;<br>&lt;/head&gt;<br>
-&lt;body&gt;<br><br>
-&lt;h1&gt;This is a heading&lt;/h1&gt;<br>
-&lt;p&gt;This is a paragraph.&lt;/p&gt;<br><br>
-&lt;/body&gt;<br>
-&lt;/html&gt;
-   </div>
-   <a href="/html/tryit.asp?filename=tryhtml_default_default" target="_blank" class="w3-button ga-fp tryit-button">Try it Yourself</a>
+
+  <div class="container">
+    <div class="card card-compact bg-base-100 w-96 shadow-xl">
+      <figure>
+        <img :src="htmlImage" alt="html" class="image-size" />
+      </figure>
+      <div class="card-body">
+        <h2 class="card-title">HTML</h2>
+        <p>The language for building web pages</p>
+        <div class="card-actions justify-end">
+          <button class="btn btn-primary">Buy Now</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card card-compact bg-base-100 w-96 shadow-xl">
+      <figure>
+        <img :src="javascriptImage" alt="java" class="image-size">
+      </figure>
+      <div class="card-body">
+        <h2 class="card-title">JAVA SCRIPT</h2>
+        <p>The language for programming web pages</p>
+        <div class="card-actions justify-end">
+          <button class="btn btn-primary">Buy Now</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card card-compact bg-base-100 w-96 shadow-xl">
+      <figure>
+        <img :src="cssImage" alt="css" class="image-size" />
+      </figure>
+      <div class="card-body">
+        <h2 class="card-title">CSS</h2>
+        <p>The language for styling web pages</p>
+        <div class="card-actions justify-end">
+          <button class="btn btn-primary">Buy Now</button>
+        </div>
+      </div>
+    </div>
   </div>
- </div>
-  </div>
-</div>
 
+  <footer class="footer bg-neutral text-neutral-content p-10">
+    <nav>
+      <h6 class="footer-title">Services</h6>
+      <a class="link link-hover">Coding</a>
+      <a class="link link-hover">Design</a>
+    </nav>
+    <nav>
+      <h6 class="footer-title">Company</h6>
+      <a class="link link-hover">About us</a>
+      <a class="link link-hover">Contact</a>
+    </nav>
+    <nav>
+      <h6 class="footer-title">Legal</h6>
+      <a class="link link-hover">Privacy policy</a>
+      <a class="link link-hover">Cookie policy</a>
+    </nav>
+  </footer>
+</template>
 
+<script>
+import backgroundImage from '@/assets/images/background.jpg';
+import htmlImage from '@/assets/images/html2.png';
+import javascriptImage from '@/assets/images/java.jpeg';
+import cssImage from '@/assets/images/css.png';
 
- 
+export default {
+  data() {
+    return {
+      backgroundImage,
+      htmlImage,
+      javascriptImage,
+      cssImage,
+    };
+  },
+};
+</script>
 
+<style>
+.container {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
 
-<footer class="footer bg-neutral text-neutral-content p-10">
-  <nav>
-    <h6 class="footer-title">Services</h6>
-    <a class="link link-hover">coding</a>
-    <a class="link link-hover">Design</a>
-  </nav>
-  <nav>
-    <h6 class="footer-title">Company</h6>
-    <a class="link link-hover">About us</a>
-    <a class="link link-hover">Contact</a>
-  </nav>
-  <nav>
-    <h6 class="footer-title">Legal</h6>
-    <a class="link link-hover">Privacy policy</a>
-    <a class="link link-hover">Cookie policy</a>
-  </nav>
-</footer>
-  </template>
-  
- 
+.image-size {
+  width: 512px;
+  height: 330px;
+}
+</style>

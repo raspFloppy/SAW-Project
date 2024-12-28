@@ -40,10 +40,11 @@ export default {
 <template>
   <div class="hero bg-base-200 min-h-screen">
     <div class="hero-content flex-col lg:flex-row-reverse">
-      <div class="text-center lg:text-left">
-        <h1 class="text-5xl font-bold">Register now!</h1>
-      </div>
+
       <div class="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
+        <div class="text-center lg:text-left">
+          <h1 class="text-5xl font-bold ">Register now!</h1>
+        </div>
         <form class="card-body" @submit.prevent="registerUser">
           <div class="form-control">
             <label class="label">
@@ -71,9 +72,7 @@ export default {
             </label>
             <input v-model="formData.password" type="password" placeholder="password" class="input input-bordered"
               minlength="8" required />
-            <label class="label">
-              <a href="#" class="label-text-alt link link-hover">Forgot password?</a>
-            </label>
+            <p> you already have an account?<a class="link link-accent" href="./login"> login</a></p>
           </div>
           <div class="form-control mt-6">
             <button type="submit" class="btn btn-primary">Register</button>
@@ -83,12 +82,5 @@ export default {
       </div>
     </div>
   </div>
-<div>
-  <p>
-  you already have an account 
-  <br />
-  <button class="btn btn-primary" onclick="window.location.href = './login';">login</button>
-</p>
-</div>
 
 </template>
