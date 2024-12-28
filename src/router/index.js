@@ -39,9 +39,16 @@ router.beforeEach((to, from, next) => {
   const authStore = useAuthStore();
 
   if(to.meta.requiresGuest) {
-    if(authStore.isLoggedIn) {
-      next('/dashboard');
-      return;
+    try {
+      authStore.validateSession();
+      
+      if(authStore.isLoggedIn) {
+        next('/dashboard');
+        return;
+      }
+
+    } catch (error) {
+      console.log(error);
     }
   }
 

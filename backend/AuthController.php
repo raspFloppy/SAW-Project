@@ -70,7 +70,6 @@ class AuthController
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($user && password_verify($password, $user['password'])) {
-                // Regenerate session ID to prevent session fixation
                 session_regenerate_id(true);
 
                 $_SESSION["id"] = $user['id'];

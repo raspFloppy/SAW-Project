@@ -47,6 +47,7 @@ export const useAuthStore = defineStore('auth', {
         });
 
         if (response.data.success) {
+          console.log('Logout successful');
           this.isLoggedIn = false;
           this.user = null;
 
@@ -56,6 +57,7 @@ export const useAuthStore = defineStore('auth', {
 
         return response.data;
       } catch (error) {
+        console.log('Logout error', error);
         console.error('Logout error', error);
         return { success: false, message: 'Logout failed' };
       }
@@ -63,8 +65,7 @@ export const useAuthStore = defineStore('auth', {
 
     async updateProfile(firstname, lastname, email) {
       try {
-        const response = await axios.post(
-          'http://localhost:8000/index.php?action=update_profile',
+        const response = await axios.post('http://localhost:8000/index.php?action=update_profile',
           { firstname, lastname, email },
           {
             headers: {
@@ -102,12 +103,14 @@ export const useAuthStore = defineStore('auth', {
         });
 
         if (response.data.success) {
+          console.log('Session validated:', response.data.user);
           this.isLoggedIn = true;
           this.user = response.data.user;
 
           localStorage.setItem('user', JSON.stringify(response.data.user));
           localStorage.setItem('isLoggedIn', 'true');
         } else {
+          console.log('Session validation failed');
           this.isLoggedIn = false;
           this.user = null;
 
@@ -125,14 +128,14 @@ export const useAuthStore = defineStore('auth', {
     },
 
     initializeStore() {
+      this.validateSession();
+
       const storedUser = localStorage.getItem('user');
       const storedLoginStatus = localStorage.getItem('isLoggedIn');
 
       if (storedUser && storedLoginStatus === 'true') {
         this.user = JSON.parse(storedUser);
         this.isLoggedIn = true;
-
-        this.validateSession();
       }
     },
   },
