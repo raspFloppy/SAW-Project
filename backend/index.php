@@ -24,8 +24,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 include 'AuthController.php';
+include 'ArticleController.php';
 
 $controller = new AuthController();
+$articles_controller = new ArticleController();
 $data = json_decode(file_get_contents('php://input'), true);
 $action = $_GET['action'] ?? '';
 
@@ -67,6 +69,19 @@ switch ($action) {
         echo json_encode($result);
         break;
 
+    case 'get_articles':
+        $result = $articles_controller->get_articles();
+        echo json_encode($result);
+        break;
+    case 'get_article':
+        $id = isset($_GET['id']) ? intval($_GET['id']) : null;
+        if (!$id) {
+            echo json_encode(['success' => false, 'message' => 'Invalid article ID']);
+            break;
+        }
+        $result = $articles_controller->get_article($id);
+        echo json_encode($result);
+        break;
     default:
         echo json_encode(['success' => false, 'message' => 'Invalid Action']);
         break;

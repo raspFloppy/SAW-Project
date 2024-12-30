@@ -10,6 +10,6 @@
 
 <script>
 export default {
-    name: 'NotFound'
+    name: 'ArticleNotFound',
 }
 </script>

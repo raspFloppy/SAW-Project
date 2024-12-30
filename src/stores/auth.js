@@ -103,14 +103,12 @@ export const useAuthStore = defineStore('auth', {
         });
 
         if (response.data.success) {
-          console.log('Session validated:', response.data.user);
           this.isLoggedIn = true;
           this.user = response.data.user;
 
           localStorage.setItem('user', JSON.stringify(response.data.user));
           localStorage.setItem('isLoggedIn', 'true');
         } else {
-          console.log('Session validation failed');
           this.isLoggedIn = false;
           this.user = null;
 
@@ -118,8 +116,6 @@ export const useAuthStore = defineStore('auth', {
           localStorage.removeItem('isLoggedIn');
         }
       } catch (error) {
-        console.error('Session validation error:', error);
-
         this.isLoggedIn = false;
         this.user = null;
         localStorage.removeItem('user');

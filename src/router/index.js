@@ -5,6 +5,8 @@ import Login from '@/views/Login.vue';
 import Home from '@/views/Home.vue';
 import NotFound from '@/views/NotFound.vue';
 import Dashboard from '@/views/Dashboard.vue';
+import ArticlesList from '@/views/ArticlesList.vue';
+import ArticleDetails from '@/views/ArticleDetails.vue';
 
 const routes = [
   {path: '/', component: Home},
@@ -24,7 +26,16 @@ const routes = [
     meta: {requiresAuth: true}
   },
   {
-    path: '/notfound', 
+    path: '/articles',
+    component: ArticlesList,
+  },
+  {
+    path: '/article/:id',
+    component: ArticleDetails,
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'NotFound', 
     component: NotFound
   },
 ]

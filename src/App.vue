@@ -22,17 +22,18 @@ export default {
 <template>
   <nav class="p-4 bg-base-200">
     <RouterLink to="/" class="mr-4">Home</RouterLink>
+    <RouterLink to="/articles" class="mx-4">Articles</RouterLink>
     <template v-if="!isLoggedIn">
-      |
-      <RouterLink to="/registration" class="mx-4">Registration</RouterLink>
-      |
-      <RouterLink to="/login" class="mx-4">Login</RouterLink>
+      <div style="margin-left: auto;">
+        <RouterLink to="/registration" class="mx-4">Registration</RouterLink>
+        <RouterLink to="/login" class="mx-4">Login</RouterLink>
+      </div>
     </template>
     <template v-else>
-      |
       <RouterLink to="/dashboard" class="mx-4">Dashboard</RouterLink>
-      |
-      <LogoutButton class="ml-2" />
+      <div style="margin-left: auto;">
+        <LogoutButton class="ml-2" />
+      </div>
     </template>
   </nav>
   <main>
