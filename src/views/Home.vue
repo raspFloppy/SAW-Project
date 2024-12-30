@@ -35,7 +35,7 @@
         <h2 class="card-title">HTML</h2>
         <p>The language for building web pages</p>
         <div class="card-actions justify-end">
-          <button class="btn btn-primary">Buy Now</button>
+          <RouterLink to="/cer_html" class="btn btn-primary">Get Start</RouterLink>
         </div>
       </div>
     </div>
@@ -48,7 +48,7 @@
         <h2 class="card-title">JAVA SCRIPT</h2>
         <p>The language for programming web pages</p>
         <div class="card-actions justify-end">
-          <button class="btn btn-primary">Buy Now</button>
+          <RouterLink to="/cer_java" class="btn btn-primary">Get Start</RouterLink>
         </div>
       </div>
     </div>
@@ -61,7 +61,7 @@
         <h2 class="card-title">CSS</h2>
         <p>The language for styling web pages</p>
         <div class="card-actions justify-end">
-          <button class="btn btn-primary">Buy Now</button>
+          <RouterLink to="/cer_CSS" class="btn btn-primary">Get Start</RouterLink>
         </div>
       </div>
     </div>

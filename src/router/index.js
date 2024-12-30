@@ -6,7 +6,9 @@ import Home from '@/views/Home.vue';
 import NotFound from '@/views/NotFound.vue';
 import Dashboard from '@/views/Dashboard.vue';
 import '@fortawesome/fontawesome-free/css/all.css';
-
+import CerHtml from '@/views/cer_html.vue';
+import CerJava from '@/views/cer_java.vue';
+import CerCSS from '@/views/cer_CSS.vue';
 
 const routes = [
   {path: '/', component: Home},
@@ -28,6 +30,21 @@ const routes = [
   {
     path: '/notfound', 
     component: NotFound
+  },
+  {
+    path: '/cer_html',
+    name: 'CerHtml',
+    component: CerHtml,
+  },
+  {
+    path: '/cer_java',
+    name: 'Cerjava',
+    component: CerJava,
+  },
+  {
+    path: '/cer_CSS',
+    name: 'CerCSS',
+    component: CerCSS,
   },
 ]
 
