@@ -20,13 +20,13 @@ export default {
 </script>
 
 <template>
-  <nav class="p-4 bg-base-200">
+  <nav class="p-2 bg-base-200">
     <RouterLink to="/" class="mr-4">Home</RouterLink>
     <RouterLink to="/articles" class="mx-4">Articles</RouterLink>
     <template v-if="!isLoggedIn">
-      <div style="margin-left: auto;">
-        <RouterLink to="/registration" class="mx-4">Registration</RouterLink>
-        <RouterLink to="/login" class="mx-4">Login</RouterLink>
+      <div class="ml-auto flex space-x-2">
+        <RouterLink to="/login" class="btn btn-ghost">Login</RouterLink>
+        <RouterLink to="/registration" class="btn btn-outline btn-secondary">Sign Up</RouterLink>
       </div>
     </template>
     <template v-else>

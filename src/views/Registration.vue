@@ -71,9 +71,6 @@ export default {
             </label>
             <input v-model="formData.password" type="password" placeholder="password" class="input input-bordered"
               minlength="8" required />
-            <label class="label">
-              <a href="#" class="label-text-alt link link-hover">Forgot password?</a>
-            </label>
           </div>
           <div class="form-control mt-6">
             <button type="submit" class="btn btn-primary">Register</button>
