@@ -24,8 +24,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 include 'AuthController.php';
+include 'CoursesController.php';
 
 $controller = new AuthController();
+$courses_controller = new CoursesController();
 $data = json_decode(file_get_contents('php://input'), true);
 $action = $_GET['action'] ?? '';
 
@@ -66,7 +68,19 @@ switch ($action) {
         );
         echo json_encode($result);
         break;
-
+    case 'get_courses':
+        $result = $courses_controller->get_courses();
+        echo json_encode($result);
+        break;
+    case 'get_course':
+        $id = isset($_GET['id']) ? intval($_GET['id']) : null;
+        if (!$id) {
+            echo json_encode(['success' => false, 'message' => 'Invalid Course ID']);
+            break;
+        }
+        $result = $courses_controller->get_course($id);
+        echo json_encode($result);
+        break;
     default:
         echo json_encode(['success' => false, 'message' => 'Invalid Action']);
         break;

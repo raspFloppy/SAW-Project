@@ -9,6 +9,9 @@ import '@fortawesome/fontawesome-free/css/all.css';
 import CerHtml from '@/views/cer_html.vue';
 import CerJava from '@/views/cer_java.vue';
 import CerCSS from '@/views/cer_CSS.vue';
+import CourseList from '@/views/CoursesList.vue';
+import CourseDetails from '@/views/CourseDetails.vue';
+
 
 const routes = [
   {path: '/', component: Home},
@@ -30,6 +33,15 @@ const routes = [
   {
     path: '/notfound', 
     component: NotFound
+  },
+  {
+    path: '/courses',
+    name: 'CourseList',
+    component: CourseList,
+  },
+  {
+    path: '/course/:id',
+    component: CourseDetails,
   },
   {
     path: '/cer_html',

@@ -1,6 +1,7 @@
 <script>
 import { useAuthStore } from '@/stores/auth'
 import LogoutButton from './components/LogoutButton.vue'
+import Cart from './components/Cart.vue'
 import { computed } from 'vue'
 
 export default {
@@ -22,6 +23,7 @@ export default {
 <template>
   <nav class="p-4 bg-base-200">
     <RouterLink to="/" class="mr-4">Home</RouterLink>
+    <RouterLink to="/courses" class="mx-4">Courses</RouterLink>
     <template v-if="!isLoggedIn">
       |
       <RouterLink to="/registration" class="mx-4">Registration</RouterLink>
@@ -34,6 +36,7 @@ export default {
       |
       <LogoutButton class="ml-2" />
     </template>
+    <Cart/>
   </nav>
   <main>
     <RouterView />
