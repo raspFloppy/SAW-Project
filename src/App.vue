@@ -1,23 +1,23 @@
 <script>
-import { useAuthStore } from '@/stores/auth'
-import LogoutButton from './components/LogoutButton.vue'
-import Cart from './components/Cart.vue'
-import { computed } from 'vue'
+import { useAuthStore } from "@/stores/auth";
+import LogoutButton from "./components/LogoutButton.vue";
+import Cart from "./components/Cart.vue"; // Importa il carrello
+import { computed } from "vue";
 
 export default {
   components: {
-    LogoutButton
+    LogoutButton,
+    Cart, // Registra il componente
   },
   setup() {
-    const authStore = useAuthStore()
-
-    const isLoggedIn = computed(() => authStore.isLoggedIn)
+    const authStore = useAuthStore();
+    const isLoggedIn = computed(() => authStore.isLoggedIn);
 
     return {
-      isLoggedIn
-    }
-  }
-}
+      isLoggedIn,
+    };
+  },
+};
 </script>
 
 <template>
@@ -36,7 +36,7 @@ export default {
       |
       <LogoutButton class="ml-2" />
     </template>
-    <Cart/>
+    <Cart /> <!-- Usa il componente Cart qui -->
   </nav>
   <main>
     <RouterView />

@@ -22,50 +22,7 @@
     </div>
   </div>
 
-  <div>
-    <h1 class="text-5xl font-bold text-center">Our courses</h1>
-  </div>
-
-  <div class="container">
-    <div class="card card-compact bg-base-100 w-96 shadow-xl">
-      <figure>
-        <img :src="htmlImage" alt="html" class="image-size" />
-      </figure>
-      <div class="card-body">
-        <h2 class="card-title">HTML</h2>
-        <p>The language for building web pages</p>
-        <div class="card-actions justify-end">
-          <RouterLink to="/cer_html" class="btn btn-primary">Get Start</RouterLink>
-        </div>
-      </div>
-    </div>
-
-    <div class="card card-compact bg-base-100 w-96 shadow-xl">
-      <figure>
-        <img :src="javascriptImage" alt="java" class="image-size">
-      </figure>
-      <div class="card-body">
-        <h2 class="card-title">JAVA SCRIPT</h2>
-        <p>The language for programming web pages</p>
-        <div class="card-actions justify-end">
-          <RouterLink to="/cer_java" class="btn btn-primary">Get Start</RouterLink>
-        </div>
-      </div>
-    </div>
-
-    <div class="card card-compact bg-base-100 w-96 shadow-xl">
-      <figure>
-        <img :src="cssImage" alt="css" class="image-size" />
-      </figure>
-      <div class="card-body">
-        <h2 class="card-title">CSS</h2>
-        <p>The language for styling web pages</p>
-        <div class="card-actions justify-end">
-          <RouterLink to="/cer_CSS" class="btn btn-primary">Get Start</RouterLink>
-        </div>
-      </div>
-    </div>
-  </div>
+  
 
   <footer class="footer bg-neutral text-neutral-content p-10">
     <nav>
