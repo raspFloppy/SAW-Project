@@ -52,7 +52,7 @@ function handleAddToCart() {
           <span class="mx-2">{{ quantity }}</span>
           <button class="btn btn-outline btn-sm" @click="increment">+</button>
         </div>
-        <button class="btn btn-primary" @click="handleAddToCart">Buy Now</button>
+        <button class="btn btn-primary" @click="handleAddToCart">add to cart</button>
       </div>
     </div>
   </div>
