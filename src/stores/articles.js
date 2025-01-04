@@ -1,24 +1,37 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
 
+
 export const useArticleStore = defineStore('article', {
   state: () => ({
     articles: [],
     currentArticle: null,
     loading: false,
-    error: null
+    error: null,
+    currentPage: 1,
+    perPage: 3,
+    totalPages: 1,
+    total: 0,
   }),
 
   actions: {
-    async fetchArticles() {
+    async fetchArticles(page = 1) {
       this.loading = true;
       try {
-        const response = await axios.get('http://localhost:8000/index.php?action=get_articles', {
+        const response = await axios.get('http://localhost:8000/index.php', {
+          params: {
+            action: 'get_articles',
+            page,
+            per_page: this.perPage
+          },
           withCredentials: true
         });
 
         if (response.data.success) {
           this.articles = response.data.articles;
+          this.currentPage = response.data.current_page;
+          this.totalPages = response.data.last_page;
+          this.total = response.data.total;
         }
       } catch (error) {
         this.error = error.response?.data?.message || 'Failed to fetch articles';
@@ -30,21 +43,64 @@ export const useArticleStore = defineStore('article', {
     async fetchArticleById(article_id) {
       this.loading = true;
       try {
+        const user = JSON.parse(localStorage.getItem('user'));
+        const userId = user ? user.id : null;
+
         const response = await axios.get('http://localhost:8000/index.php', {
           withCredentials: true,
           params: {
             action: 'get_article',
-            id: article_id
+            id: article_id,
+            user_id: userId
           }
         });
+        
         if (response.data.success) {
-          this.currentArticle = response.data.article;
+          this.currentArticle = {
+            ...response.data.article,
+            is_favorite: response.data.article.is_favorite || false
+          };
         }
       } catch (error) {
         this.error = error.response?.data?.message || 'Failed to fetch article';
       } finally {
         this.loading = false;
       }
-    }
+    },
+
+    async toggleFavorite() {
+      console.log("toggle api")
+      const user = JSON.parse(localStorage.getItem('user'));
+      const userId = user ? user.id : null;
+
+      console.log(this.currentArticle);
+      this.loading = true;
+      try {
+        const response = await axios.post('http://localhost:8000/index.php?action=set_favorite', 
+          { article_id: this.currentArticle.id, user_id: userId},
+          { 
+            withCredentials: true,
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+
+        console.log(response)
+        if (response.data.success) {
+          this.currentArticle = {
+            ...this.currentArticle,
+            is_favorite: !this.currentArticle.is_favorite
+          };
+          return true;
+        }
+        return false;
+      } catch (error) {
+        this.error = error.response?.data?.message || 'Failed to toggle favorite';
+        return false;
+      } finally {
+        this.loading = false;
+      }
+    },
   }
 });

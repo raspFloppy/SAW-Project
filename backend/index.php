@@ -70,16 +70,47 @@ switch ($action) {
         break;
 
     case 'get_articles':
-        $result = $articles_controller->get_articles();
+        $page = isset($_GET['page']) ? intval($_GET['page']) : 1;
+        $per_page = isset($_GET['per_page']) ? intval($_GET['per_page']) : 3;
+        $result = $articles_controller->get_articles($page, $per_page);
         echo json_encode($result);
         break;
     case 'get_article':
         $id = isset($_GET['id']) ? intval($_GET['id']) : null;
+        $user_id = isset($_GET['user_id']) ? intval($_GET['user_id']) : null;
+
         if (!$id) {
             echo json_encode(['success' => false, 'message' => 'Invalid article ID']);
             break;
         }
-        $result = $articles_controller->get_article($id);
+
+        $result = $articles_controller->get_article($id, $user_id);
+        echo json_encode($result);
+        break;
+    case 'set_favorite':
+        $article_id = $data['article_id'] ?? null;
+        $user_id = $data['user_id'] ?? null;
+        if (!$article_id) {
+            echo json_encode(['success' => false, 'message' => 'Invalid article ID']);
+            break;
+        }
+
+        if (!$user_id) {
+            echo json_encode(['success' => false, 'message' => 'Invalid user ID']);
+            break;
+        }
+
+        $result = $articles_controller->set_favorite($article_id, $user_id);
+        echo json_encode($result);
+        break;
+    case 'get_favorite':
+        $user_id = $data['user_id'] ?? null;
+        if (!$user_id) {
+            echo json_encode(['success' => false, 'message' => 'Invalid user ID']);
+            break;
+        }
+
+        $result = $articles_controller->get_favorites($user_id);
         echo json_encode($result);
         break;
     default:

@@ -2,6 +2,8 @@
 import { onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useArticleStore } from '@/stores/articles';
+import { formatDate } from '@/utils/utils';
+import FavoriteButton from '@/components/FavoriteButton.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -25,7 +27,8 @@ onMounted(() => {
             <h1 class="text-3xl font-bold mb-4">{{ articleStore.currentArticle.title }}</h1>
             <div class="text-gray-600 mb-2">By {{ articleStore.currentArticle.author }}</div>
             <div class="text-gray-500 mb-6">
-                {{ new Date(articleStore.currentArticle.created_at).toLocaleDateString() }}
+                {{ formatDate(articleStore.currentArticle.created_at) }}
+                <FavoriteButton :articleId="articleStore.currentArticle.id" />
             </div>
             <div class="prose max-w-none">
                 {{ articleStore.currentArticle.content }}

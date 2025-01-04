@@ -2,6 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useRouter } from 'vue-router'
+import { showAlert } from '@/utils/utils'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -16,7 +17,7 @@ const formData = ref({
     email: ''
 })
 
-const initializeForm = () => {
+function initializeForm() {
     if (user.value) {
         formData.value = {
             firstname: user.value.firstname,
@@ -30,18 +31,7 @@ const resetForm = () => {
     initializeForm()
 }
 
-const showAlert = (type, message) => {
-    alert.value = {
-        show: true,
-        type: type === 'success' ? 'alert-success' : 'alert-error',
-        message
-    }
-    setTimeout(() => {
-        alert.value.show = false
-    }, 5000)
-}
-
-const handleUpdateProfile = async () => {
+async function handleUpdateProfile() {
     isLoading.value = true
     try {
         const result = await auth.updateProfile(
@@ -62,7 +52,7 @@ const handleUpdateProfile = async () => {
     }
 }
 
-const logout = async () => {
+async function logout() {
     await auth.logout()
     router.push('/login')
 }

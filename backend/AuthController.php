@@ -14,7 +14,7 @@ class AuthController
 
     public function register(string $firstname, string $lastname, string $email, string $password): array
     {
-        if ($this->is_user_logged()) {
+        if ($this->isUserLogged()) {
             return ['success' => false, 'message' => 'A User already logged in'];
         }
 
@@ -56,7 +56,7 @@ class AuthController
 
     public function login(string $email, string $password): array
     {
-        if ($this->is_user_logged()) {
+        if ($this->isUserLogged()) {
             return ['success' => false, 'message' => 'A User already logged in'];
         }
 
@@ -97,7 +97,7 @@ class AuthController
 
     public function logout(): array
     {
-        if (!$this->is_user_logged()) {
+        if (!$this->isUserLogged()) {
             return ['success' => false, 'message' => 'No user is logged in'];
         }
 
@@ -117,7 +117,7 @@ class AuthController
 
     public function show_profile(): array
     {
-        if (!$this->is_user_logged()) {
+        if (!$this->isUserLogged()) {
             return ['success' => false, 'message' => 'No user logged, nothing to show'];
         }
 
@@ -133,7 +133,7 @@ class AuthController
 
     public function update_profile(string $firstname, string $lastname, string $email): array
     {
-        if (!$this->is_user_logged()) {
+        if (!$this->isUserLogged()) {
             return ['success' => false, 'message' => 'No user logged, cannot update profile'];
         }
 
@@ -188,7 +188,7 @@ class AuthController
         }
     }
 
-    private function is_user_logged(): bool
+    private function isUserLogged(): bool
     {
         return isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true;
     }

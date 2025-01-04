@@ -5,8 +5,13 @@ require_once 'AuthController.php';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['email'], $_POST['pass'])) {
         $authController = new AuthController();
-        $email = trim($_POST['email']);
+        $email = filter_var(trim($_POST['email']), FILTER_SANITIZE_EMAIL);
         $password = trim($_POST['pass']);
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            echo json_encode(['success' => false, 'message' => 'Invalid email format']);
+            exit;
+        }
 
         $result = $authController->login($email, $password);
 
