@@ -12,7 +12,7 @@ const articleStore = useArticleStore();
 
 onMounted(async () => {
     await articleStore.fetchArticleById(route.params.id);
-    await articleStore.getArticleComments();
+    await articleStore.updateArticleComments();
 });
 </script>
 

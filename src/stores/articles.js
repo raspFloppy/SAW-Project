@@ -149,7 +149,7 @@ export const useArticleStore = defineStore('article', {
       }
     },
 
-    async getArticleComments() {
+    async updateArticleComments() {
       try {
         const response = await axios.get('http://localhost:8000/index.php', {
           withCredentials: true,
@@ -187,10 +187,7 @@ export const useArticleStore = defineStore('article', {
 
         console.log(response)
         if (response.data.success) {
-          this.currentArticle.comments = [
-            ...this.currentArticle.comments,
-            response.data.comment
-          ];
+          await this.updateArticleComments();
           return true;
         }
         return false;

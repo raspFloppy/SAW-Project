@@ -21,7 +21,6 @@ export default {
     };
   },
   methods: {
-    //TODO: Alert does not work
     async loginUser() {
       try {
         const result = await this.authStore.login(

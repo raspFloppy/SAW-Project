@@ -33,7 +33,11 @@ $comments_controller = new CommentController();
 $data = json_decode(file_get_contents('php://input'), true);
 $action = $_GET['action'] ?? '';
 
+//TODO:  sanitize input data sqlinjection, xss, csrf
 switch ($action) {
+    case '':
+        echo json_encode(['succcess' => true, 'message' => 'Welcome to the API']);
+        break;
     case 'register':
         $result = $controller->register(
             $data['firstname'] ?? '',

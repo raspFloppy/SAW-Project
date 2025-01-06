@@ -14,15 +14,14 @@ function formatDateNumeric(date) {
   });
 };
 
+//TODO: create component for alert
 function showAlert(alert, success, message) {
-    alert.value = {
-        show: true,
-        type: success ? 'alert-success' : 'alert-error',
-        message
-    }
+    alert.show = true
+    alert.type = success ? 'alert-success' : 'alert-error'
+    alert.message = message
 
     setTimeout(() => {
-        alert.value.show = false
+        alert.show = false
     }, 2000)
 }
 
