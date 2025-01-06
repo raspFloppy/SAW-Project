@@ -1,24 +1,3 @@
-<template>
-  <div>
-    <form @submit.prevent="registerUser">
-      <div>
-        <label for="username">Username:</label>
-        <input v-model="formData.username" type="text" id="username" required />
-      </div>
-      <div>
-        <label for="email">Email:</label>
-        <input v-model="formData.email" type="email" id="email" required />
-      </div>
-      <div>
-        <label for="password">Password:</label>
-        <input v-model="formData.password" type="password" id="password" required minlength="8"  />
-      </div>
-      <button type="submit">Register</button>
-    </form>
-    <p v-if="responseMessage">{{ responseMessage }}</p>
-  </div>
-</template>
-
 <script>
 import axios from 'axios';
 
@@ -26,7 +5,8 @@ export default {
   data() {
     return {
       formData: {
-        username: '',
+        firstname: '',
+        lastname: '',
         email: '',
         password: '',
       },
@@ -44,32 +24,60 @@ export default {
 
         if (response.data.success) {
           this.responseMessage = response.data.message;
+          this.$router.push('/login')
         } else {
-          this.responseMessage = `Error: ${response.data.message || 'Registration failed'}`;
+          this.responseMessage = `Server Error: ${response.data.message || 'Registration failed'}`;
         }
       } catch (err) {
-        if (err.response && err.response.data && err.response.data.message) {
-          this.responseMessage = `Error: ${err.response.data.message}`;
-        } else {
-          this.responseMessage = `Error: ${err.message}`;
-        }
+        this.responseMessage = `Response Error: ${err.message}`;
       }
     },
   },
 };
 </script>
 
-<style scoped>
-form {
-  max-width: 400px;
-  margin: auto;
-  display: flex;
-  flex-direction: column;
-}
-div {
-  margin-bottom: 1rem;
-}
-button {
-  padding: 0.5rem;
-}
-</style>
+
+<template>
+  <div class="hero bg-base-200 min-h-screen">
+    <div class="hero-content flex-col lg:flex-row-reverse">
+      <div class="text-center lg:text-left">
+        <h1 class="text-5xl font-bold">Register now!</h1>
+      </div>
+      <div class="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
+        <form class="card-body" @submit.prevent="registerUser">
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text">First Name</span>
+            </label>
+            <input v-model="formData.firstname" type="text" placeholder="firstname" class="input input-bordered"
+              required />
+          </div>
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text">Last Name</span>
+            </label>
+            <input v-model="formData.lastname" type="text" placeholder="lastname" class="input input-bordered"
+              required />
+          </div>
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text">Email</span>
+            </label>
+            <input v-model="formData.email" type="email" placeholder="email" class="input input-bordered" required />
+          </div>
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text">Password</span>
+            </label>
+            <input v-model="formData.password" type="password" placeholder="password" class="input input-bordered"
+              minlength="8" required />
+          </div>
+          <div class="form-control mt-6">
+            <button type="submit" class="btn btn-primary">Register</button>
+          </div>
+        </form>
+        <p v-if="responseMessage">{{ responseMessage }}</p>
+      </div>
+    </div>
+  </div>
+</template>

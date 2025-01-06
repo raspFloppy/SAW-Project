@@ -1,71 +1,82 @@
-<template>
-  <div>
-    <form @submit.prevent="loginUser">
-      <div>
-        <label for="email">Email:</label>
-        <input v-model="formData.email" type="email" id="email" required />
-      </div>
-      <div>
-        <label for="password">Password:</label>
-        <input v-model="formData.password" type="password" id="password" required/>
-      </div>
-      <button type="submit">Login</button>
-    </form>
-    <p v-if="responseMessage">{{ responseMessage }}</p>
-  </div>
-</template>
-
 <script>
-import axios from 'axios';
+import { ref } from 'vue';
+import { useAuthStore } from '@/stores/auth'
+import { useRouter } from 'vue-router';
+import { showAlert } from '@/utils/utils'
 
 export default {
+  setup() {
+    const authStore = useAuthStore();
+    const router = useRouter();
+    const alert = ref({ show: false, type: '', message: '' });
+
+    return { authStore, router, alert };
+  },
   data() {
     return {
       formData: {
         email: '',
         password: '',
       },
-      responseMessage: '',
     };
   },
   methods: {
     async loginUser() {
       try {
-        const response = await axios.post('http://localhost:8000/index.php?action=login', this.formData, {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+        const result = await this.authStore.login(
+          this.formData.email,
+          this.formData.password
+        );
 
-        if (response.data.success) {
-          this.responseMessage = response.data.message;
-          this.$router.push('/');
+        if (result.success) {
+          showAlert(this.alert, result.success, 'Login successful');
+          this.router.push('/dashboard');
         } else {
-          this.responseMessage = `Error: ${response.data.message || 'Login failed'}`;
+          showAlert(this.alert, result.success, result.message);
         }
       } catch (err) {
-        if (err.response && err.response.data && err.response.data.message) {
-          this.responseMessage = `Error: ${err.response.data.message}`;
-        } else {
-          this.responseMessage = `Error: ${err.message}`;
-        }
+        showAlert(this.alert, false, 'Failed to login');
       }
     },
   },
 };
 </script>
 
-<style scoped>
-form {
-  max-width: 400px;
-  margin: auto;
-  display: flex;
-  flex-direction: column;
-}
-div {
-  margin-bottom: 1rem;
-}
-button {
-  padding: 0.5rem;
-}
-</style>
+<template>
+  <div class="hero bg-base-200 min-h-screen" style="padding-bottom: 100px;">
+    <div class="hero-content flex-col items-center">
+      <div v-if="alert.show" :class="`alert ${alert.type} mb-4`">
+        <span>{{ alert.message }}</span>
+      </div>
+      <div class="text-center mb-6">
+        <h1 class="text-5xl font-bold">Login now!</h1>
+      </div>
+      <div class="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
+        <form class="card-body" @submit.prevent="loginUser">
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text">
+                Email
+              </span>
+            </label>
+            <input v-model="formData.email" type="email" id="email" placeholder="email" class="input input-bordered"
+              required />
+          </div>
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text">Password</span>
+            </label>
+            <input v-model="formData.password" type="password" name="password" id="password" autocomplete="on"
+              placeholder="password" class="input input-bordered" required />
+            <label class="label">
+              <a href="#" class="label-text-alt link link-hover">Forgot password?</a>
+            </label>
+          </div>
+          <div class="form-control mt-6">
+            <button class="btn btn-primary" type="submit">Login</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</template>
