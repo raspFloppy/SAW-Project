@@ -76,6 +76,7 @@ class AuthController
                 $_SESSION["firstname"] = $user['firstname'];
                 $_SESSION["lastname"] = $user['lastname'];
                 $_SESSION["email"] = $user['email'];
+                $_SESSION["created_at"] = $user['created_at'];
                 $_SESSION["loggedin"] = true;
 
                 return [
@@ -85,7 +86,8 @@ class AuthController
                         'id' => $user['id'],
                         'firstname' => $user['firstname'],
                         'lastname' => $user['lastname'],
-                        'email' => $user['email']
+                        'email' => $user['email'],
+                        'created_at' => $user['created_at']
                     ]
                 ];
             }
@@ -124,9 +126,11 @@ class AuthController
         return [
             'success' => true,
             'user' => [
+                'id' => $_SESSION['id'],
                 'firstname' => $_SESSION['firstname'],
                 'lastname' => $_SESSION['lastname'],
-                'email' => $_SESSION['email']
+                'email' => $_SESSION['email'],
+                'created_at' => $_SESSION['created_at']
             ]
         ];
     }

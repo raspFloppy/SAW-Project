@@ -25,9 +25,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 include 'AuthController.php';
 include 'ArticleController.php';
+include 'CommentController.php';
 
 $controller = new AuthController();
 $articles_controller = new ArticleController();
+$comments_controller = new CommentController();
 $data = json_decode(file_get_contents('php://input'), true);
 $action = $_GET['action'] ?? '';
 
@@ -103,7 +105,7 @@ switch ($action) {
         $result = $articles_controller->set_favorite($article_id, $user_id);
         echo json_encode($result);
         break;
-    case 'get_favorite':
+    case 'get_favorites':
         $user_id = $data['user_id'] ?? null;
         if (!$user_id) {
             echo json_encode(['success' => false, 'message' => 'Invalid user ID']);
@@ -111,6 +113,49 @@ switch ($action) {
         }
 
         $result = $articles_controller->get_favorites($user_id);
+        echo json_encode($result);
+        break;
+    case 'get_favorites_count':
+        $user_id = $_GET['user_id'] ?? null;
+        if (!$user_id) {
+            echo json_encode(['success' => false, 'message' => 'Invalid user ID']);
+            break;
+        }
+
+        $result = $articles_controller->get_favorites_count($user_id);
+        echo json_encode($result);
+        break;
+    case 'get_comments':
+        $article_id = $_GET['article_id'] ?? null;
+        $user_id = $_GET['user_id'] ?? null;
+        if (!$article_id) {
+            echo json_encode(['success' => false, 'message' => 'Invalid article ID']);
+            break;
+        }
+
+        $result = $comments_controller->get_comments($article_id);
+        echo json_encode($result);
+        break;
+    case 'write_comment':
+        $user_id = $data['user_id'] ?? null;
+        $article_id = $data['article_id'] ?? null;
+        $comment = $data['comment'] ?? null;
+        if (!$user_id) {
+            echo json_encode(['success' => false, 'message' => 'Invalid user ID']);
+            break;
+        }
+
+        if (!$article_id) {
+            echo json_encode(['success' => false, 'message' => 'Invalid article ID']);
+            break;
+        }
+
+        if (!$comment) {
+            echo json_encode(['success' => false, 'message' => 'Invalid comment']);
+            break;
+        }
+
+        $result = $comments_controller->write_comment($user_id, $article_id, $comment);
         echo json_encode($result);
         break;
     default:

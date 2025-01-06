@@ -47,7 +47,6 @@ export const useAuthStore = defineStore('auth', {
         });
 
         if (response.data.success) {
-          console.log('Logout successful');
           this.isLoggedIn = false;
           this.user = null;
 
@@ -57,7 +56,6 @@ export const useAuthStore = defineStore('auth', {
 
         return response.data;
       } catch (error) {
-        console.log('Logout error', error);
         console.error('Logout error', error);
         return { success: false, message: 'Logout failed' };
       }

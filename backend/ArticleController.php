@@ -117,6 +117,18 @@ class ArticleController
         }
     }
 
+    public function get_favorites_count(int $user_id)
+    {
+        try {
+            $stmt = $this->conn->prepare("SELECT COUNT(*) FROM UserFavorite WHERE user_id = :user_id");
+            $stmt->execute(['user_id' => $user_id]);
+            $count = $stmt->fetchColumn();
+            return ['success' => true, 'count' => $count];
+        } catch (PDOException $e) {
+            return ['success' => false, 'message' => 'Database error: ' . $e->getMessage()];
+        }
+    }
+
     public function isFavorite(int $article_id, int $user_id)
     {
         try {

@@ -4,13 +4,15 @@ import { useRoute, useRouter } from 'vue-router';
 import { useArticleStore } from '@/stores/articles';
 import { formatDate } from '@/utils/utils';
 import FavoriteButton from '@/components/FavoriteButton.vue';
+import ArticleComments from './ArticleComments.vue';
 
 const route = useRoute();
 const router = useRouter();
 const articleStore = useArticleStore();
 
-onMounted(() => {
-    articleStore.fetchArticleById(route.params.id);
+onMounted(async () => {
+    await articleStore.fetchArticleById(route.params.id);
+    await articleStore.getArticleComments();
 });
 </script>
 
@@ -33,7 +35,11 @@ onMounted(() => {
             <div class="prose max-w-none">
                 {{ articleStore.currentArticle.content }}
             </div>
+            <div>
+                <ArticleComments :articleId="articleStore.currentArticle.id" />
+            </div>
         </div>
+
         <div v-else>
             <router-view name="not-found" />
         </div>

@@ -3,10 +3,12 @@ import { useAuthStore} from '@/stores/auth'
 import Registration from '@/views/Registration.vue';
 import Login from '@/views/Login.vue';
 import Home from '@/views/Home.vue';
-import NotFound from '@/views/NotFound.vue';
+import PageNotFound from '@/views/PageNotFound.vue';
 import Dashboard from '@/views/Dashboard.vue';
 import ArticlesList from '@/views/ArticlesList.vue';
 import ArticleDetails from '@/views/ArticleDetails.vue';
+import FavoriteArticles from '@/views/FavoriteArticles.vue';
+import PaidCourses from '@/views/PaidCourses.vue';
 
 const routes = [
   {path: '/', component: Home},
@@ -23,7 +25,13 @@ const routes = [
   {
     path: '/dashboard',
     component: Dashboard,
-    meta: {requiresAuth: true}
+    meta: {requiresAuth: true},
+    children: [
+      {
+        path: 'favorites',
+        component: FavoriteArticles
+      }
+    ]
   },
   {
     path: '/articles',
@@ -35,8 +43,8 @@ const routes = [
   },
   {
     path: '/:pathMatch(.*)*',
-    name: 'NotFound', 
-    component: NotFound
+    name: 'PageNotFound', 
+    component: PageNotFound
   },
 ]
 
@@ -59,7 +67,7 @@ router.beforeEach((to, from, next) => {
       }
 
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   }
 

@@ -6,16 +6,24 @@ function formatDate(date) {
   });
 };
 
+function formatDateNumeric(date) {
+  return new Date(date).toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  });
+};
 
-function showAlert(type, message) {
+function showAlert(alert, success, message) {
     alert.value = {
         show: true,
-        type: type === 'success' ? 'alert-success' : 'alert-error',
+        type: success ? 'alert-success' : 'alert-error',
         message
     }
+
     setTimeout(() => {
         alert.value.show = false
-    }, 5000)
+    }, 2000)
 }
 
-export { formatDate, showAlert };
+export { formatDate, showAlert, formatDateNumeric };
