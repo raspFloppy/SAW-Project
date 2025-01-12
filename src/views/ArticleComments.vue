@@ -1,10 +1,13 @@
 <script setup>
 import { ref } from 'vue';
 import { useArticleStore } from '@/stores/articles';
+import { useAuthStore } from '@/stores/auth';
 import { formatDate } from '@/utils/utils';
 
 const articleStore = useArticleStore();
+const authStore = useAuthStore();
 const newComment = ref('');
+const isLoggedIn = ref(authStore.isLoggedIn);
 
 async function submitComment() {
     if (!newComment.value.trim()) return;
@@ -18,15 +21,17 @@ async function submitComment() {
 
 <template>
     <div class="mt-8">
-        <div class="card bg-base-200 shadow-xl mb-6">
-            <div class="card-body">
-                <h2 class="card-title text-xl mb-4">Write a Comment</h2>
-                <textarea v-model="newComment" class="textarea textarea-bordered w-full h-24"
-                    placeholder="Share your thoughts..."></textarea>
-                <div class="card-actions justify-end mt-4">
-                    <button @click.prevent="submitComment" class="btn btn-primary" :disabled="!newComment.trim()">
-                        Post Comment
-                    </button>
+        <div v-if="isLoggedIn">
+            <div class="card bg-base-200 shadow-xl mb-6">
+                <div class="card-body">
+                    <h2 class="card-title text-xl mb-4">Write a Comment</h2>
+                    <textarea v-model="newComment" class="textarea textarea-bordered w-full h-24"
+                        placeholder="Share your thoughts..."></textarea>
+                    <div class="card-actions justify-end mt-4">
+                        <button @click.prevent="submitComment" class="btn btn-primary" :disabled="!newComment.trim()">
+                            Post Comment
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
