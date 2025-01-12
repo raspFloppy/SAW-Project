@@ -5,22 +5,26 @@ import LogoutButton from './components/LogoutButton.vue'
 import Cart from './components/Cart.vue'
 import { computed } from 'vue'
 import AvatarButton from './components/AvatarButton.vue';
+import { useAuthStore } from "@/stores/auth";
+import LogoutButton from "./components/LogoutButton.vue";
+import Cart from "./components/Cart.vue"; // Importa il carrello
+import { computed } from "vue";
 
 export default {
   components: {
     LogoutButton,
     AvatarButton
+    Cart,
   },
   setup() {
-    const authStore = useAuthStore()
-
-    const isLoggedIn = computed(() => authStore.isLoggedIn)
+    const authStore = useAuthStore();
+    const isLoggedIn = computed(() => authStore.isLoggedIn);
 
     return {
-      isLoggedIn
-    }
-  }
-}
+      isLoggedIn,
+    };
+  },
+};
 </script>
 
 <template>
@@ -40,7 +44,10 @@ export default {
         <AvatarButton class="ml-2" />
       </div>
     </template>
-    <Cart />
+    <<<<<<< HEAD <Cart />
+    =======
+    <Cart /> <!-- Usa il componente Cart qui -->
+    >>>>>>> 41f6da92f2b69eebfb1402d7d7025b926fd9360f
   </nav>
   <main>
     <RouterView />

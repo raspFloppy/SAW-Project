@@ -1,13 +1,13 @@
 <script setup>
 import { onMounted, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRoute } from 'vue-router';
 import { useCourseStore } from '@/stores/course';
+import { useCart } from '@/stores/useCart';
 
 const route = useRoute();
-const router = useRouter();
 const courseStore = useCourseStore();
+const { addToCart } = useCart();
 const quantity = ref(1);
-const cart = ref(JSON.parse(localStorage.getItem('cart')) || []);
 
 onMounted(() => {
   courseStore.fetchCourseById(route.params.id);
@@ -23,19 +23,16 @@ function decrement() {
   }
 }
 
-function addToCart() {
+function handleAddToCart() {
   const course = courseStore.currentCourse;
-  const courseInCart = cart.value.find(item => item.id === course.id);
-  
-  if (courseInCart) {
-    courseInCart.quantity += quantity.value;
-  } else {
-    cart.value.push({ ...course, quantity: quantity.value });
-  }
-
-  localStorage.setItem('cart', JSON.stringify(cart.value));
+  addToCart({
+    id: course.id,
+    name: course.title,
+    price: course.price,
+    quantity: quantity.value,
+  });
+  alert(`${course.title} aggiunto al carrello!`);
 }
-
 </script>
 
 <template>
@@ -45,7 +42,7 @@ function addToCart() {
     <div class="hero-content flex-col lg:flex-row w-full">
       <img src="@/assets/images/HTML_course_image.jpg" class="max-w-sm rounded-lg shadow-2xl" />
       <div class="w-full">
-        <h1 class="text-5xl font-bold"> {{ courseStore.currentCourse.title }} <br> ${{ courseStore.currentCourse.price}} </h1>
+        <h1 class="text-5xl font-bold"> {{ courseStore.currentCourse.title }} <br> ${{ courseStore.currentCourse.price }} </h1>
         <p class="py-6">
           {{ courseStore.currentCourse.description }}
         </p>
@@ -55,7 +52,7 @@ function addToCart() {
           <span class="mx-2">{{ quantity }}</span>
           <button class="btn btn-outline btn-sm" @click="increment">+</button>
         </div>
-        <button class="btn btn-primary" @click="addToCart">Buy Now</button>
+        <button class="btn btn-primary" @click="handleAddToCart">add to cart</button>
       </div>
     </div>
   </div>
@@ -63,3 +60,15 @@ function addToCart() {
     <router-view name="not-found" />
   </div>
 </template>
+
+<style scoped>
+.quantity-container {
+  display: flex;
+  align-items: center;
+}
+
+.quantity-container span {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+</style>
