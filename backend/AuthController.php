@@ -14,7 +14,7 @@ class AuthController
 
     public function register(string $firstname, string $lastname, string $email, string $password): array
     {
-        if ($this->is_user_logged()) {
+        if ($this->isUserLogged()) {
             return ['success' => false, 'message' => 'A User already logged in'];
         }
 
@@ -56,7 +56,7 @@ class AuthController
 
     public function login(string $email, string $password): array
     {
-        if ($this->is_user_logged()) {
+        if ($this->isUserLogged()) {
             return ['success' => false, 'message' => 'A User already logged in'];
         }
 
@@ -70,13 +70,13 @@ class AuthController
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($user && password_verify($password, $user['password'])) {
-                // Regenerate session ID to prevent session fixation
                 session_regenerate_id(true);
 
                 $_SESSION["id"] = $user['id'];
                 $_SESSION["firstname"] = $user['firstname'];
                 $_SESSION["lastname"] = $user['lastname'];
                 $_SESSION["email"] = $user['email'];
+                $_SESSION["created_at"] = $user['created_at'];
                 $_SESSION["loggedin"] = true;
 
                 return [
@@ -86,7 +86,8 @@ class AuthController
                         'id' => $user['id'],
                         'firstname' => $user['firstname'],
                         'lastname' => $user['lastname'],
-                        'email' => $user['email']
+                        'email' => $user['email'],
+                        'created_at' => $user['created_at']
                     ]
                 ];
             }
@@ -98,7 +99,7 @@ class AuthController
 
     public function logout(): array
     {
-        if (!$this->is_user_logged()) {
+        if (!$this->isUserLogged()) {
             return ['success' => false, 'message' => 'No user is logged in'];
         }
 
@@ -118,23 +119,25 @@ class AuthController
 
     public function show_profile(): array
     {
-        if (!$this->is_user_logged()) {
+        if (!$this->isUserLogged()) {
             return ['success' => false, 'message' => 'No user logged, nothing to show'];
         }
 
         return [
             'success' => true,
             'user' => [
+                'id' => $_SESSION['id'],
                 'firstname' => $_SESSION['firstname'],
                 'lastname' => $_SESSION['lastname'],
-                'email' => $_SESSION['email']
+                'email' => $_SESSION['email'],
+                'created_at' => $_SESSION['created_at']
             ]
         ];
     }
 
     public function update_profile(string $firstname, string $lastname, string $email): array
     {
-        if (!$this->is_user_logged()) {
+        if (!$this->isUserLogged()) {
             return ['success' => false, 'message' => 'No user logged, cannot update profile'];
         }
 
@@ -189,7 +192,7 @@ class AuthController
         }
     }
 
-    private function is_user_logged(): bool
+    private function isUserLogged(): bool
     {
         return isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true;
     }

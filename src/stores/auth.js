@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
+import { useRouter } from 'vue-router';
+import router from '@/router';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -63,8 +65,7 @@ export const useAuthStore = defineStore('auth', {
 
     async updateProfile(firstname, lastname, email) {
       try {
-        const response = await axios.post(
-          'http://localhost:8000/index.php?action=update_profile',
+        const response = await axios.post('http://localhost:8000/index.php?action=update_profile',
           { firstname, lastname, email },
           {
             headers: {
@@ -108,15 +109,17 @@ export const useAuthStore = defineStore('auth', {
           localStorage.setItem('user', JSON.stringify(response.data.user));
           localStorage.setItem('isLoggedIn', 'true');
         } else {
+          router = useRouter();
+          
           this.isLoggedIn = false;
           this.user = null;
 
           localStorage.removeItem('user');
           localStorage.removeItem('isLoggedIn');
+
+          router.push('/login');
         }
       } catch (error) {
-        console.error('Session validation error:', error);
-
         this.isLoggedIn = false;
         this.user = null;
         localStorage.removeItem('user');
@@ -125,14 +128,14 @@ export const useAuthStore = defineStore('auth', {
     },
 
     initializeStore() {
+      this.validateSession();
+
       const storedUser = localStorage.getItem('user');
       const storedLoginStatus = localStorage.getItem('isLoggedIn');
 
       if (storedUser && storedLoginStatus === 'true') {
         this.user = JSON.parse(storedUser);
         this.isLoggedIn = true;
-
-        this.validateSession();
       }
     },
   },

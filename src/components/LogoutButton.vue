@@ -9,7 +9,7 @@ export default {
     const authStore = useAuthStore()
     const router = useRouter()
 
-    const handleLogout = async () => {
+    async function handleLogout() {
       try {
         const isConfirmed = confirm('Are you sure you want to log out?')
         if (!isConfirmed) {
@@ -28,7 +28,7 @@ export default {
 </script>
 
 <template>
-  <button @click.prevent="handleLogout" class="btn btn-error btn-sm">
+  <a @click.prevent="handleLogout" class="dropdown-item red-text">
     Logout
-  </button>
+  </a>
 </template>

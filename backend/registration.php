@@ -6,10 +6,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['email'], $_POST['firstname'], $_POST['lastname'], $_POST['pass'], $_POST['confirm'], $_POST['submit'])) {
         $authController = new AuthController();
 
-        $email = trim($_POST['email']);
-        $firstname = trim($_POST['firstname']);
-        $lastname = trim($_POST['lastname']);
-        $password = trim($_POST['pass']);
+        $email = filter_var(trim($_POST['email']), FILTER_SANITIZE_EMAIL);
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            echo json_encode(['success' => false, 'message' => 'Invalid email format']);
+            exit;
+        }
+        $firstname = htmlspecialchars(trim($_POST['firstname']));
+        $lastname = htmlspecialchars(trim($_POST['lastname']));
+        $password = htmlspecialchars(trim($_POST['pass']));
 
         if (strlen($password) < 8) {
             echo json_encode(['success' => false, 'message' => 'Password too short minimum 8 characters']);

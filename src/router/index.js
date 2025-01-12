@@ -3,15 +3,15 @@ import { useAuthStore} from '@/stores/auth'
 import Registration from '@/views/Registration.vue';
 import Login from '@/views/Login.vue';
 import Home from '@/views/Home.vue';
-import NotFound from '@/views/NotFound.vue';
+import PageNotFound from '@/views/PageNotFound.vue';
 import Dashboard from '@/views/Dashboard.vue';
 import '@fortawesome/fontawesome-free/css/all.css';
 import CerHtml from '@/views/cer_html.vue';
-import CerJava from '@/views/cer_java.vue';
-import CerCSS from '@/views/cer_CSS.vue';
 import CourseList from '@/views/CoursesList.vue';
 import CourseDetails from '@/views/CourseDetails.vue';
-
+import ArticlesList from '@/views/ArticlesList.vue';
+import ArticleDetails from '@/views/ArticleDetails.vue';
+import FavoriteArticles from '@/views/FavoriteArticles.vue';
 
 const routes = [
   {path: '/', component: Home},
@@ -28,11 +28,26 @@ const routes = [
   {
     path: '/dashboard',
     component: Dashboard,
-    meta: {requiresAuth: true}
+    meta: {requiresAuth: true},
+    children: [
+      {
+        path: 'favorites',
+        component: FavoriteArticles
+      }
+    ]
   },
   {
-    path: '/notfound', 
-    component: NotFound
+    path: '/articles',
+    component: ArticlesList,
+  },
+  {
+    path: '/article/:id',
+    component: ArticleDetails,
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'PageNotFound', 
+    component: PageNotFound
   },
   {
     path: '/courses',
@@ -48,16 +63,6 @@ const routes = [
     name: 'CerHtml',
     component: CerHtml,
   },
-  {
-    path: '/cer_java',
-    name: 'Cerjava',
-    component: CerJava,
-  },
-  {
-    path: '/cer_CSS',
-    name: 'CerCSS',
-    component: CerCSS,
-  },
 ]
 
 const router = createRouter({
@@ -70,9 +75,16 @@ router.beforeEach((to, from, next) => {
   const authStore = useAuthStore();
 
   if(to.meta.requiresGuest) {
-    if(authStore.isLoggedIn) {
-      next('/dashboard');
-      return;
+    try {
+      authStore.validateSession();
+      
+      if(authStore.isLoggedIn) {
+        next('/dashboard');
+        return;
+      }
+
+    } catch (error) {
+      console.error(error);
     }
   }
 
