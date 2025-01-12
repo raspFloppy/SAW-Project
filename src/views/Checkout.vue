@@ -67,12 +67,12 @@
       });
       const discountCode = reactive("");
   
-      const taxes = computed(() => (cartTotal.value * 0.1).toFixed(2)); // Example 10% tax
+      const taxes = computed(() => (cartTotal.value * 0.1).toFixed(2)); 
   
       function applyDiscount() {
-        if (discountCode === "DISCOUNT10") {
+        if (discountCode === "saw24") {
           alert("Discount applied!");
-          // Implementa il codice sconto
+          
         } else {
           alert("Invalid discount code.");
         }
