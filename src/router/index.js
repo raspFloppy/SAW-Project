@@ -8,7 +8,6 @@ import Dashboard from '@/views/Dashboard.vue';
 import ArticlesList from '@/views/ArticlesList.vue';
 import ArticleDetails from '@/views/ArticleDetails.vue';
 import FavoriteArticles from '@/views/FavoriteArticles.vue';
-import PaidCourses from '@/views/PaidCourses.vue';
 
 const routes = [
   {path: '/', component: Home},
@@ -49,7 +48,7 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory('/~s5145768'),
   routes
 })
 

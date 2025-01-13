@@ -1,6 +1,8 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
 
+const API_BASE = 'https://saw.dibris.unige.it/~s5145768/backend/index.php';
+
 export const useArticleStore = defineStore('article', {
   state: () => ({
     articles: [],
@@ -17,7 +19,7 @@ export const useArticleStore = defineStore('article', {
     async fetchArticles(page = 1) {
       this.loading = true;
       try {
-        const response = await axios.get('http://localhost:8000/index.php', {
+        const response = await axios.get(API_BASE, {
           params: {
             action: 'get_articles',
             page,
@@ -31,9 +33,12 @@ export const useArticleStore = defineStore('article', {
           this.currentPage = response.data.current_page;
           this.totalPages = response.data.last_page;
           this.total = response.data.total;
+        } else {
+          throw new Error(response.data.message || 'Failed to fetch articles');
         }
       } catch (error) {
-        this.error = error.response?.data?.message || 'Failed to fetch articles';
+        this.error = error.message || 'Failed to fetch articles';
+        throw error;
       } finally {
         this.loading = false;
       }
@@ -45,7 +50,7 @@ export const useArticleStore = defineStore('article', {
         const user = JSON.parse(localStorage.getItem('user'));
         const userId = user ? user.id : null;
 
-        const response = await axios.get('http://localhost:8000/index.php', {
+        const response = await axios.get(API_BASE, {
           withCredentials: true,
           params: {
             action: 'get_article',
@@ -59,9 +64,12 @@ export const useArticleStore = defineStore('article', {
             ...response.data.article,
             is_favorite: response.data.article.is_favorite || false
           };
+        } else {
+          throw new Error(response.data.message || 'Failed to fetch article');
         }
       } catch (error) {
-        this.error = error.response?.data?.message || 'Failed to fetch article';
+        this.error = error.message || 'Failed to fetch article';
+        throw error;
       } finally {
         this.loading = false;
       }
@@ -71,10 +79,18 @@ export const useArticleStore = defineStore('article', {
       const user = JSON.parse(localStorage.getItem('user'));
       const userId = user ? user.id : null;
 
+      if (!userId || !this.currentArticle) {
+        throw new Error('User must be logged in and article must be selected');
+      }
+
       this.loading = true;
       try {
-        const response = await axios.post('http://localhost:8000/index.php?action=set_favorite', 
-          { article_id: this.currentArticle.id, user_id: userId},
+        const response = await axios.post(API_BASE, 
+          { 
+            action: 'set_favorite',
+            article_id: this.currentArticle.id, 
+            user_id: userId
+          },
           { 
             withCredentials: true,
             headers: {
@@ -90,21 +106,25 @@ export const useArticleStore = defineStore('article', {
           };
           return true;
         }
-        return false;
+        throw new Error(response.data.message || 'Failed to toggle favorite');
       } catch (error) {
-        this.error = error.response?.data?.message || 'Failed to toggle favorite';
-        return false;
+        this.error = error.message || 'Failed to toggle favorite';
+        throw error;
       } finally {
         this.loading = false;
       }
     },
 
     async getFavorites() {
-      try {
-        const user = JSON.parse(localStorage.getItem('user'));
-        const userId = user ? user.id : null;
+      const user = JSON.parse(localStorage.getItem('user'));
+      const userId = user ? user.id : null;
 
-        const response = await axios.get('http://localhost:8000/index.php', {
+      if (!userId) {
+        throw new Error('User must be logged in');
+      }
+
+      try {
+        const response = await axios.get(API_BASE, {
           withCredentials: true,
           params: {
             action: 'get_favorites',
@@ -115,21 +135,21 @@ export const useArticleStore = defineStore('article', {
         if (response.data.success) {
           return response.data.favorites;
         }
-        return null;
+        throw new Error(response.data.message || 'Failed to fetch favorites');
       } catch (error) {
-        this.error = error.response?.data?.message || 'Failed to fetch favorites';
-        return null;
-      } finally {
-        this.loading = false
+        this.error = error.message || 'Failed to fetch favorites';
+        throw error;
       }
     },
 
     async getFavoritesCount() {
-      try {
-        const user = JSON.parse(localStorage.getItem('user'));
-        const userId = user ? user.id : null;
+      const user = JSON.parse(localStorage.getItem('user'));
+      const userId = user ? user.id : null;
 
-        const response = await axios.get('http://localhost:8000/index.php', {
+      if (!userId) return 0;
+
+      try {
+        const response = await axios.get(API_BASE, {
           withCredentials: true,
           params: {
             action: 'get_favorites_count',
@@ -142,16 +162,18 @@ export const useArticleStore = defineStore('article', {
         }
         return 0;
       } catch (error) {
-        this.error = error.response?.data?.message || 'Failed to fetch favorites count';
+        this.error = error.message || 'Failed to fetch favorites count';
         return 0;
-      } finally {
-        this.loading = false;
       }
     },
 
     async updateArticleComments() {
+      if (!this.currentArticle) {
+        throw new Error('No article selected');
+      }
+
       try {
-        const response = await axios.get('http://localhost:8000/index.php', {
+        const response = await axios.get(API_BASE, {
           withCredentials: true,
           params: {
             action: 'get_comments',
@@ -160,12 +182,16 @@ export const useArticleStore = defineStore('article', {
         });
 
         if (response.data.success) {
-          this.currentArticle.comments = response.data.comments;
+          this.currentArticle = {
+            ...this.currentArticle,
+            comments: response.data.comments
+          };
+        } else {
+          throw new Error(response.data.message || 'Failed to fetch comments');
         }
       } catch (error) {
-        this.error = error.response?.data?.message || 'Failed to fetch comments';
-      } finally {
-        this.loading = false;
+        this.error = error.message || 'Failed to fetch comments';
+        throw error;
       }
     },
 
@@ -173,10 +199,19 @@ export const useArticleStore = defineStore('article', {
       const user = JSON.parse(localStorage.getItem('user'));
       const userId = user ? user.id : null;
 
+      if (!userId || !this.currentArticle) {
+        throw new Error('User must be logged in and article must be selected');
+      }
+
       this.loading = true;
       try {
-        const response = await axios.post('http://localhost:8000/index.php?action=write_comment', 
-          { article_id: this.currentArticle.id, user_id: userId, comment },
+        const response = await axios.post(API_BASE, 
+          { 
+            action: 'write_comment',
+            article_id: this.currentArticle.id, 
+            user_id: userId, 
+            comment 
+          },
           { 
             withCredentials: true,
             headers: {
@@ -185,15 +220,14 @@ export const useArticleStore = defineStore('article', {
           }
         );
 
-        console.log(response)
         if (response.data.success) {
           await this.updateArticleComments();
           return true;
         }
-        return false;
+        throw new Error(response.data.message || 'Failed to write comment');
       } catch (error) {
-        this.error = error.response?.data?.message || 'Failed to write comment';
-        return false;
+        this.error = error.message || 'Failed to write comment';
+        throw error;
       } finally {
         this.loading = false;
       }

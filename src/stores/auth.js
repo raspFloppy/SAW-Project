@@ -1,20 +1,27 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
-import router from '@/router';
+
+const API_BASE = 'https://saw.dibris.unige.it/~s5145768/backend/index.php';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null,
     isLoggedIn: false,
+    loading: false,
+    error: null
   }),
 
   actions: {
     async login(email, password) {
+      this.loading = true;
       try {
-        const response = await axios.post(
-          'http://localhost:8000/index.php?action=login',
-          { email, password },
+        const response = await axios.post(API_BASE, 
+          { 
+            action: 'login',
+            email, 
+            password 
+          },
           {
             headers: {
               'Content-Type': 'application/json',
@@ -26,47 +33,57 @@ export const useAuthStore = defineStore('auth', {
         if (response.data.success) {
           this.isLoggedIn = true;
           this.user = response.data.user;
-
           localStorage.setItem('user', JSON.stringify(response.data.user));
-          localStorage.setItem('isLoggedIn', 'true');
-
           return { success: true, message: response.data.message };
-        } else {
-          return { success: false, message: response.data.message };
         }
+        
+        throw new Error(response.data.message || 'Login failed');
       } catch (error) {
-        return {
-          success: false,
-          message: error.response?.data?.message || 'Login failed',
-        };
+        this.error = error.message || 'Login failed';
+        throw error;
+      } finally {
+        this.loading = false;
       }
     },
 
     async logout() {
+      this.loading = true;
       try {
-        const response = await axios.get('http://localhost:8000/index.php?action=logout', {
-          withCredentials: true,
-        });
+        const response = await axios.post(API_BASE,
+          { action: 'logout' },
+          { withCredentials: true }
+        );
 
         if (response.data.success) {
-          this.isLoggedIn = false;
-          this.user = null;
-
-          localStorage.removeItem('user');
-          localStorage.removeItem('isLoggedIn');
+          this.clearAuth();
+          return { success: true, message: response.data.message };
         }
-
-        return response.data;
+        
+        throw new Error(response.data.message || 'Logout failed');
       } catch (error) {
-        console.error('Logout error', error);
-        return { success: false, message: 'Logout failed' };
+        this.error = error.message || 'Logout failed';
+        throw error;
+      } finally {
+        this.loading = false;
       }
     },
 
+    clearAuth() {
+      this.isLoggedIn = false;
+      this.user = null;
+      localStorage.removeItem('user');
+    },
+
     async updateProfile(firstname, lastname, email) {
+      this.loading = true;
       try {
-        const response = await axios.post('http://localhost:8000/index.php?action=update_profile',
-          { firstname, lastname, email },
+        const response = await axios.post(API_BASE,
+          { 
+            action: 'update_profile',
+            firstname, 
+            lastname, 
+            email 
+          },
           {
             headers: {
               'Content-Type': 'application/json',
@@ -83,60 +100,48 @@ export const useAuthStore = defineStore('auth', {
             email,
           };
           localStorage.setItem('user', JSON.stringify(this.user));
-
           return { success: true, message: response.data.message };
-        } else {
-          return { success: false, message: response.data.message };
         }
+        
+        throw new Error(response.data.message || 'Update failed');
       } catch (error) {
-        return {
-          success: false,
-          message: error.response?.data?.message || 'Update failed',
-        };
+        this.error = error.message || 'Update failed';
+        throw error;
+      } finally {
+        this.loading = false;
       }
     },
 
     async validateSession() {
+      this.loading = true;
       try {
-        const response = await axios.get('http://localhost:8000/index.php?action=show_profile', {
+        const response = await axios.get(API_BASE, {
+          params: { action: 'show_profile' },
           withCredentials: true,
         });
 
         if (response.data.success) {
           this.isLoggedIn = true;
           this.user = response.data.user;
-
           localStorage.setItem('user', JSON.stringify(response.data.user));
-          localStorage.setItem('isLoggedIn', 'true');
         } else {
-          router = useRouter();
-          
-          this.isLoggedIn = false;
-          this.user = null;
-
-          localStorage.removeItem('user');
-          localStorage.removeItem('isLoggedIn');
-
-          router.push('/login');
+          this.clearAuth();
         }
       } catch (error) {
-        this.isLoggedIn = false;
-        this.user = null;
-        localStorage.removeItem('user');
-        localStorage.removeItem('isLoggedIn');
+        this.clearAuth();
+        this.error = error.message || 'Session validation failed';
+      } finally {
+        this.loading = false;
       }
     },
 
-    initializeStore() {
-      this.validateSession();
-
+    async initializeStore() {
       const storedUser = localStorage.getItem('user');
-      const storedLoginStatus = localStorage.getItem('isLoggedIn');
-
-      if (storedUser && storedLoginStatus === 'true') {
+      if (storedUser) {
         this.user = JSON.parse(storedUser);
         this.isLoggedIn = true;
       }
+      await this.validateSession();
     },
   },
 });

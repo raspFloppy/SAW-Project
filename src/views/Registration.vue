@@ -1,6 +1,8 @@
 <script>
 import axios from 'axios';
 
+const API_BASE = 'https://saw.dibris.unige.it/~s5145768/backend/index.php';
+
 export default {
   data() {
     return {
@@ -16,7 +18,7 @@ export default {
   methods: {
     async registerUser() {
       try {
-        const response = await axios.post('http://localhost:8000/index.php?action=register', this.formData, {
+        const response = await axios.post(`${API_BASE}?action=register`, this.formData, {
           headers: {
             'Content-Type': 'application/json',
           },

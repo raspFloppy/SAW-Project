@@ -1,0 +1,11 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /~s5145768/
+  
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  
+  RewriteCond %{REQUEST_URI} !^/~s5145768/backend/
+  
+  RewriteRule . index.html [L]
+</IfModule>
