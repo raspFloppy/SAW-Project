@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS User (
     firstname VARCHAR(255) NOT NULL,
     lastname VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
-    passwd VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -36,3 +36,11 @@ CREATE TABLE IF NOT EXISTS Comment (
     FOREIGN KEY (user_id) REFERENCES User(id),
     FOREIGN KEY (article_id) REFERENCES Article(id)
 );
+
+INSERT INTO Article (title, author, content) VALUES
+('The Future of AI', 'John Doe', 'Artificial Intelligence is transforming the world.'),
+('Climate Change and Its Impact', 'Jane Smith', 'Climate change is one of the biggest challenges of our time.'),
+('The Rise of Quantum Computing', 'Alice Johnson', 'Quantum computing is set to revolutionize technology.'),
+('Exploring the Universe', 'Bob Brown', 'Space exploration is expanding our understanding of the universe.'),
+('Advancements in Renewable Energy', 'Carol White', 'Renewable energy sources are becoming more efficient.'),
+('The Evolution of the Internet', 'David Green', 'The internet has drastically changed over the past few decades.');
