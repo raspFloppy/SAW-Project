@@ -48,7 +48,7 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory('/~s5145768'),
+  history: createWebHistory(import.meta.env.WEB_HISTORY_PATH),
   routes
 })
 

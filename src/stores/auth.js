@@ -1,8 +1,7 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
-import { useRouter } from 'vue-router';
 
-const API_BASE = 'https://saw.dibris.unige.it/~s5145768/backend/index.php';
+const API_BASE = import.meta.env.VITE_API_BASE;
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -13,14 +12,44 @@ export const useAuthStore = defineStore('auth', {
   }),
 
   actions: {
+    async register(formData) {
+      this.loading = true;
+      try {
+        const response = await axios.post(API_BASE, formData, {
+          params: {
+            action: 'register'
+          },
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          withCredentials: true,
+        });
+
+        if (response.data.success) {
+          return {success: response.data.success, message: response.data.message};
+        } else {
+          return {success: response.data.success, message: response.data.message};
+        }
+      } catch (error) {
+        this.error = error.message || 'Login error, login failed';
+        throw error;
+      } finally {
+        this.loading = false;
+      }
+    },
+
     async login(email, password) {
       this.loading = true;
       try {
         const response = await axios.post(API_BASE, 
           { 
-            action: 'login',
             email, 
             password 
+          },
+          {
+            params: {
+              action: 'login'
+            }
           },
           {
             headers: {
@@ -34,10 +63,10 @@ export const useAuthStore = defineStore('auth', {
           this.isLoggedIn = true;
           this.user = response.data.user;
           localStorage.setItem('user', JSON.stringify(response.data.user));
-          return { success: true, message: response.data.message };
+          return { success: response.data.success, message: response.data.message };
         }
-        
-        throw new Error(response.data.message || 'Login failed');
+
+        return {success: response.data.success, message: response.data.message}
       } catch (error) {
         this.error = error.message || 'Login failed';
         throw error;
@@ -50,7 +79,8 @@ export const useAuthStore = defineStore('auth', {
       this.loading = true;
       try {
         const response = await axios.post(API_BASE,
-          { action: 'logout' },
+          { params: { action: 'logout' }
+          },
           { withCredentials: true }
         );
 
@@ -79,10 +109,14 @@ export const useAuthStore = defineStore('auth', {
       try {
         const response = await axios.post(API_BASE,
           { 
-            action: 'update_profile',
             firstname, 
             lastname, 
             email 
+          },
+          { 
+            params: { 
+              action: 'update_profile'
+            }
           },
           {
             headers: {
@@ -116,7 +150,9 @@ export const useAuthStore = defineStore('auth', {
       this.loading = true;
       try {
         const response = await axios.get(API_BASE, {
-          params: { action: 'show_profile' },
+          params: { 
+            action: 'show_profile' 
+          },
           withCredentials: true,
         });
 

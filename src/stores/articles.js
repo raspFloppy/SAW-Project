@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import axios from 'axios';
 
-const API_BASE = 'https://saw.dibris.unige.it/~s5145768/backend/index.php';
+const API_BASE = import.meta.env.VITE_API_BASE;
 
 export const useArticleStore = defineStore('article', {
   state: () => ({

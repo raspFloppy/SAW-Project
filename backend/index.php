@@ -11,7 +11,7 @@ session_set_cookie_params([
 
 session_start();
 
-$allowed_origin = "*";
+$allowed_origin = "http://localhost:5173";
 header("Content-Type: application/json");
 header("Access-Control-Allow-Origin: " . $allowed_origin);
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS");

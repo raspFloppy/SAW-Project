@@ -1,9 +1,18 @@
 <script>
-import axios from 'axios';
-
-const API_BASE = 'https://saw.dibris.unige.it/~s5145768/backend/index.php';
+import { ref } from 'vue'
+import { useAuthStore } from '@/stores/auth';
+import { showAlert } from '@/utils/utils';
+import { useRouter } from 'vue-router';
 
 export default {
+  setup() {
+    const authStore = useAuthStore();
+    const router = useRouter();
+    const alert = ref({ show: false, type: '', message: ''});
+
+    return { authStore, router, alert };
+  },
+
   data() {
     return {
       formData: {
@@ -12,37 +21,36 @@ export default {
         email: '',
         password: '',
       },
-      responseMessage: '',
     };
   },
+
   methods: {
     async registerUser() {
       try {
-        const response = await axios.post(`${API_BASE}?action=register`, this.formData, {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+        const result = await this.authStore.register(this.formData);
 
-        if (response.data.success) {
-          this.responseMessage = response.data.message;
-          this.$router.push('/login')
+        if(result.success) {
+          showAlert(this.alert, result.success, result.message);
+          this.router.push('/login');
         } else {
-          this.responseMessage = `Server Error: ${response.data.message || 'Registration failed'}`;
+          showAlert(this.alert, result.success, result.message);
         }
-      } catch (err) {
-        this.responseMessage = `Response Error: ${err.message}`;
+      } catch(err) {
+        showAlert(this.alert, false, 'Failed to register');
       }
-    },
+    }
   },
 };
 </script>
 
 
 <template>
-  <div class="hero bg-base-200 min-h-screen">
-    <div class="hero-content flex-col lg:flex-row-reverse">
-      <div class="text-center lg:text-left">
+  <div class="hero bg-base-200 min-h-screen" style="padding-bottom: 100px;">
+    <div class="hero-content flex-col items-center">
+      <div v-if="alert.show" :class="`alert ${alert.type} mb-4`">
+        <span>{{ alert.message }}</span>
+      </div>
+      <div class="text-center mb-6">
         <h1 class="text-5xl font-bold">Register now!</h1>
       </div>
       <div class="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
@@ -78,7 +86,6 @@ export default {
             <button type="submit" class="btn btn-primary">Register</button>
           </div>
         </form>
-        <p v-if="responseMessage">{{ responseMessage }}</p>
       </div>
     </div>
   </div>

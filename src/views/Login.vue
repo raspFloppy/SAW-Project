@@ -12,6 +12,7 @@ export default {
 
     return { authStore, router, alert };
   },
+
   data() {
     return {
       formData: {
@@ -20,6 +21,7 @@ export default {
       },
     };
   },
+
   methods: {
     async loginUser() {
       try {
