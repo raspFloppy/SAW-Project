@@ -1,17 +1,14 @@
 <script>
 import { computed } from 'vue'
 import { useAuthStore } from '@/stores/auth'
-import LogoutButton from './components/LogoutButton.vue'
 import AvatarButton from './components/AvatarButton.vue';
 
 export default {
   components: {
-    LogoutButton,
     AvatarButton
   },
   setup() {
     const authStore = useAuthStore()
-
     const isLoggedIn = computed(() => authStore.isLoggedIn)
 
     return {
@@ -32,7 +29,6 @@ export default {
       </div>
     </template>
     <template v-else>
-      <RouterLink to="/dashboard" class="mx-4">Dashboard</RouterLink>
       <div style="margin-left: auto;">
         <AvatarButton class="ml-2" />
       </div>

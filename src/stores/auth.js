@@ -7,6 +7,7 @@ export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null,
     isLoggedIn: false,
+    isAdmin: false,
     loading: false,
     error: null
   }),
@@ -15,7 +16,8 @@ export const useAuthStore = defineStore('auth', {
     async register(formData) {
       this.loading = true;
       try {
-        const response = await axios.post(API_BASE, formData, {
+        const response = await axios.post(API_BASE, formData, 
+        {
           params: {
             action: 'register'
           },
@@ -49,9 +51,7 @@ export const useAuthStore = defineStore('auth', {
           {
             params: {
               action: 'login'
-            }
-          },
-          {
+            },
             headers: {
               'Content-Type': 'application/json',
             },
@@ -61,6 +61,7 @@ export const useAuthStore = defineStore('auth', {
 
         if (response.data.success) {
           this.isLoggedIn = true;
+          this.isAdmin = response.data.user === 'Admin';
           this.user = response.data.user;
           localStorage.setItem('user', JSON.stringify(response.data.user));
           return { success: response.data.success, message: response.data.message };
@@ -78,10 +79,16 @@ export const useAuthStore = defineStore('auth', {
     async logout() {
       this.loading = true;
       try {
-        const response = await axios.post(API_BASE,
-          { params: { action: 'logout' }
-          },
-          { withCredentials: true }
+        const response = await axios.post(API_BASE, {},
+          {
+            params: { 
+              action: 'logout' 
+            },
+            headers: {
+              'Content-Type': 'application/json',
+            }, 
+            withCredentials: true,
+          }
         );
 
         if (response.data.success) {
@@ -116,9 +123,7 @@ export const useAuthStore = defineStore('auth', {
           { 
             params: { 
               action: 'update_profile'
-            }
-          },
-          {
+            },
             headers: {
               'Content-Type': 'application/json',
             },
@@ -153,11 +158,15 @@ export const useAuthStore = defineStore('auth', {
           params: { 
             action: 'show_profile' 
           },
+          headers: {
+            'Content-Type': 'application/json',
+          },
           withCredentials: true,
         });
 
         if (response.data.success) {
           this.isLoggedIn = true;
+          this.isAdmin = response.data.user.type === 'admin';
           this.user = response.data.user;
           localStorage.setItem('user', JSON.stringify(response.data.user));
         } else {

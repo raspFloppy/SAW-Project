@@ -8,7 +8,7 @@ export default {
   setup() {
     const authStore = useAuthStore();
     const router = useRouter();
-    const alert = ref({ show: false, type: '', message: ''});
+    const alert = ref({ show: false, type: '', message: '' });
 
     return { authStore, router, alert };
   },
@@ -29,13 +29,13 @@ export default {
       try {
         const result = await this.authStore.register(this.formData);
 
-        if(result.success) {
+        if (result.success) {
           showAlert(this.alert, result.success, result.message);
           this.router.push('/login');
         } else {
           showAlert(this.alert, result.success, result.message);
         }
-      } catch(err) {
+      } catch (err) {
         showAlert(this.alert, false, 'Failed to register');
       }
     }

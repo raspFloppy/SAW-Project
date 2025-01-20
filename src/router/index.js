@@ -8,6 +8,8 @@ import Dashboard from '@/views/Dashboard.vue';
 import ArticlesList from '@/views/ArticlesList.vue';
 import ArticleDetails from '@/views/ArticleDetails.vue';
 import FavoriteArticles from '@/views/FavoriteArticles.vue';
+import AdminDashboard from '@/views/AdminDashboard.vue';
+import ArticleEditor from '@/views/ArticleEditor.vue';
 
 const routes = [
   {path: '/', component: Home},
@@ -25,16 +27,25 @@ const routes = [
     path: '/dashboard',
     component: Dashboard,
     meta: {requiresAuth: true},
-    children: [
-      {
-        path: 'favorites',
-        component: FavoriteArticles
-      }
-    ]
+  },
+  {
+    path: '/admin_dashboard',
+    component: AdminDashboard,
+    meta: {requiresAuth: true},
+  },
+  {
+    path: '/favorite-articles',
+    component: FavoriteArticles,
+    meta: {requiresAuth: true},
   },
   {
     path: '/articles',
     component: ArticlesList,
+  },
+  {
+    path: '/article-editor',
+    component: ArticleEditor,
+    meta: {requiresAuth: true},
   },
   {
     path: '/article/:id',
@@ -48,7 +59,7 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHistory(import.meta.env.WEB_HISTORY_PATH),
+  history: createWebHistory(),
   routes
 })
 

@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS User (
     lastname VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
+    user_type ENUM('Normal', 'Admin') NOT NULL DEFAULT 'Normal',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

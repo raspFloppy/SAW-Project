@@ -77,6 +77,7 @@ class AuthController
                 $_SESSION["lastname"] = $user['lastname'];
                 $_SESSION["email"] = $user['email'];
                 $_SESSION["created_at"] = $user['created_at'];
+                $_SESSION["type"] = $user['type'];
                 $_SESSION["loggedin"] = true;
 
                 return [
@@ -87,6 +88,7 @@ class AuthController
                         'firstname' => $user['firstname'],
                         'lastname' => $user['lastname'],
                         'email' => $user['email'],
+                        'type' => $user['type'],
                         'created_at' => $user['created_at']
                     ]
                 ];
@@ -130,6 +132,7 @@ class AuthController
                 'firstname' => $_SESSION['firstname'],
                 'lastname' => $_SESSION['lastname'],
                 'email' => $_SESSION['email'],
+                'type' => $_SESSION['type'],
                 'created_at' => $_SESSION['created_at']
             ]
         ];
@@ -192,7 +195,7 @@ class AuthController
         }
     }
 
-    private function isUserLogged(): bool
+    protected function isUserLogged(): bool
     {
         return isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true;
     }

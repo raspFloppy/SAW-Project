@@ -1,11 +1,13 @@
 <script>
 import { useAuthStore } from '@/stores/auth'
 import LogoutButton from '@/components/LogoutButton.vue'
+import DashboardButton from '@/components/DashboardButton.vue';
 
 export default {
     name: 'Avatar',
     components: {
-        LogoutButton
+        LogoutButton,
+        DashboardButton
     },
     setup() {
         const authStore = useAuthStore()
@@ -25,6 +27,9 @@ export default {
                 </div>
             </label>
             <ul tabindex="0" class="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52">
+                <li>
+                    <DashboardButton />
+                </li>
                 <li>
                     <LogoutButton />
                 </li>

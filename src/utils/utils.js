@@ -14,7 +14,6 @@ function formatDateNumeric(date) {
   });
 };
 
-//TODO: create component for alert
 function showAlert(alert, success, message) {
     alert.show = true
     alert.type = success ? 'alert-success' : 'alert-error'

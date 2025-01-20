@@ -18,6 +18,7 @@ const formData = ref({
     firstname: '',
     lastname: '',
     email: '',
+    type: '',
     created_at: ''
 })
 
@@ -27,6 +28,7 @@ function initializeForm() {
             firstname: user.value.firstname,
             lastname: user.value.lastname,
             email: user.value.email,
+            type: user.value.type,
             created_at: user.value.created_at
         }
     }
@@ -51,7 +53,7 @@ async function handleUpdateProfile() {
             showAlert(alert, result.success, result.message)
         }
     } catch (error) {
-        showAlert(false, 'Failed to update profile')
+        showAlert(alert, false, 'Failed to update profile')
     } finally {
         isLoading.value = false
     }
@@ -67,7 +69,7 @@ async function getFavoritesCount() {
 }
 
 async function goToFavorites() {
-    router.push('/dashboard/favorites')
+    router.push('/dashboard')
 }
 
 onMounted(async () => {
@@ -85,7 +87,12 @@ onMounted(async () => {
         <Navbar>
             <template #left>
                 <div class="flex-1">
-                    <a class="btn btn-ghost normal-case text-xl">User Dashboard</a>
+                    <RouterLink to="/dashboard" class="btn btn-ghost normal-case text-xl">
+                        User Dashboard
+                    </RouterLink>
+                    <RouterLink v-if="auth.isAdmin" to='/admin_dashboard' class="btn btn-ghost normal-case text-xl">
+                        AdminDashboard
+                    </RouterLink>
                 </div>
             </template>
         </Navbar>
@@ -178,7 +185,8 @@ onMounted(async () => {
                         </svg>
                     </div>
                     <div class="stat-title">User Created</div>
-                    <div class="stat-value text-primary text-lg sm:text-2xl">{{ formatDate(user?.created_at) }}</div>
+                    <div class="stat-value text-primary text-lg sm:text-2xl">{{ formatDate(user?.created_at) }}
+                    </div>
                     <div class="stat-desc">Account Age</div>
                 </div>
 

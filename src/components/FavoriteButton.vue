@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, watch } from 'vue';
 import { useArticleStore } from '@/stores/articles';
 import { useAuthStore } from '@/stores/auth';
 
@@ -39,7 +39,7 @@ async function toggleFavorite() {
 </script>
 
 <template>
-    <button v-if="authStore.isLoggedIn" @click="toggleFavorite"
+    <button :disabled="!authStore.isLoggedIn" @click="toggleFavorite"
         class="btn btn-circle btn-ghost transition-colors duration-200 hover:bg-gray-100">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transition-colors duration-200"
             :class="{ 'text-red-500 fill-red-500': isFavorite, 'text-gray-400': !isFavorite }" viewBox="0 0 24 24"

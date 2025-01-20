@@ -18,7 +18,7 @@ export default {
         authStore.logout()
         router.push('/')
       } catch (error) {
-        console.error('Logout failed:', error)
+        console.error('Logout button failed:', error)
       }
     }
 
@@ -28,7 +28,7 @@ export default {
 </script>
 
 <template>
-  <a @click.prevent="handleLogout" class="dropdown-item red-text">
+  <a @click.prevent="handleLogout" class="dropdown-item text-red-500">
     Logout
   </a>
 </template>

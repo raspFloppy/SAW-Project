@@ -13,6 +13,8 @@ export const useArticleStore = defineStore('article', {
     perPage: 3,
     totalPages: 1,
     total: 0,
+    articleLikesCount: 0,
+    articleCommentsCount: 0
   }),
 
   actions: {
@@ -64,6 +66,8 @@ export const useArticleStore = defineStore('article', {
             ...response.data.article,
             is_favorite: response.data.article.is_favorite || false
           };
+          this.updateArticleCommentsCount();
+          this.updateArticleLikesCount();
         } else {
           throw new Error(response.data.message || 'Failed to fetch article');
         }
@@ -85,17 +89,19 @@ export const useArticleStore = defineStore('article', {
 
       this.loading = true;
       try {
-        const response = await axios.post(API_BASE, 
+        const response = await axios.post(API_BASE,
           { 
-            action: 'set_favorite',
             article_id: this.currentArticle.id, 
             user_id: userId
           },
-          { 
-            withCredentials: true,
+          {
+            params: {
+              action: 'set_favorite'
+            },
             headers: {
               'Content-Type': 'application/json'
-            }
+            },
+            withCredentials: true,
           }
         );
 
@@ -104,6 +110,7 @@ export const useArticleStore = defineStore('article', {
             ...this.currentArticle,
             is_favorite: !this.currentArticle.is_favorite
           };
+          await this.updateArticleLikesCount();
           return true;
         }
         throw new Error(response.data.message || 'Failed to toggle favorite');
@@ -115,7 +122,7 @@ export const useArticleStore = defineStore('article', {
       }
     },
 
-    async getFavorites() {
+    async getFavorites() {updateArticleLikesCount
       const user = JSON.parse(localStorage.getItem('user'));
       const userId = user ? user.id : null;
 
@@ -125,11 +132,11 @@ export const useArticleStore = defineStore('article', {
 
       try {
         const response = await axios.get(API_BASE, {
-          withCredentials: true,
           params: {
             action: 'get_favorites',
             user_id: userId
-          }
+          },
+          withCredentials: true,
         });
 
         if (response.data.success) {
@@ -150,13 +157,18 @@ export const useArticleStore = defineStore('article', {
 
       try {
         const response = await axios.get(API_BASE, {
-          withCredentials: true,
           params: {
             action: 'get_favorites_count',
             user_id: userId
-          }
+          },
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          withCredentials: true,
+
         });
 
+        console.log(response);
         if (response.data.success) {
           return response.data.count;
         }
@@ -207,26 +219,122 @@ export const useArticleStore = defineStore('article', {
       try {
         const response = await axios.post(API_BASE, 
           { 
-            action: 'write_comment',
             article_id: this.currentArticle.id, 
             user_id: userId, 
             comment 
           },
-          { 
-            withCredentials: true,
+          {
+            params: {
+              action :'write_comment'
+            }, 
             headers: {
               'Content-Type': 'application/json'
-            }
+            },
+            withCredentials: true,
           }
         );
 
         if (response.data.success) {
           await this.updateArticleComments();
+          await this.updateArticleCommentsCount();
           return true;
         }
         throw new Error(response.data.message || 'Failed to write comment');
       } catch (error) {
         this.error = error.message || 'Failed to write comment';
+        throw error;
+      } finally {
+        this.loading = false;
+      }
+    },
+    
+    async updateArticleLikesCount() {
+      if (!this.currentArticle) return 0;
+
+      try {
+        const response = await axios.get(API_BASE, {
+          params: {
+            action: 'get_article_favorites_count',
+            article_id: this.currentArticle.id
+          },
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          withCredentials: true,
+        });
+
+        if (response.data.success) {
+          this.articleLikesCount = response.data.count;
+        }
+      } catch (error) {
+        this.error = error.message || 'Failed to fetch likes count';
+        return 0;
+      }
+    },
+
+    async updateArticleCommentsCount() {
+      if (!this.currentArticle) return 0;
+
+      try {
+        const response = await axios.get(API_BASE, {
+          params: {
+            action: 'get_article_comments_count',
+            article_id: this.currentArticle.id
+          },
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          withCredentials: true,
+        });
+
+        if (response.data.success) {
+          this.articleCommentsCount = response.data.count;
+        }
+      } catch (error) {
+        this.error = error.message || 'Failed to fetch comments count';
+        return 0;
+      }
+    },
+
+    async writeArticle(title, content, author) {
+      const user = JSON.parse(localStorage.getItem('user'));
+      const userId = user ? user.id : null;
+      const userType = JSON.parse(localStorage.getItem('user')).type;
+
+      if (!userId) {
+        throw new Error('User must be logged in');
+      }
+
+      if(userType !== 'admin') {
+        throw new Error('User must be an admin');
+      }
+
+      this.loading = true;
+      try {
+        const response = await axios.post(API_BASE, 
+          { 
+            title, 
+            content,
+            author, 
+            author_id: userId 
+          },
+          {
+            params: {
+              action: 'write_article'
+            },
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            withCredentials: true,
+          }
+        );
+
+        if (response.data.success) {
+          return response.data.article_id;
+        }
+        throw new Error(response.data.message || 'Failed to write article');
+      } catch (error) {
+        this.error = error.message || 'Failed to write article';
         throw error;
       } finally {
         this.loading = false;

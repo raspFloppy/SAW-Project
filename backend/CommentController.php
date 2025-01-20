@@ -56,4 +56,23 @@ class CommentController
             return ['success' => false, 'message' => 'Database error: ' . $e->getMessage()];
         }
     }
+
+    public function get_article_comments_count(int $article_id)
+    {
+        try {
+            $query = "SELECT COUNT(*) as count
+                      FROM Comment
+                      WHERE article_id = :article_id";
+
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindParam(':article_id', $article_id, PDO::PARAM_INT);
+            $stmt->execute();
+
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return ['success' => true, 'count' => $result['count']];
+        } catch (PDOException $e) {
+            error_log("Error getting comments count: " . $e->getMessage());
+            return ['success' => false, 'message' => 'Database error: ' . $e->getMessage()];
+        }
+    }
 }

@@ -1,12 +1,26 @@
 <script setup>
-import { onMounted } from 'vue';
+import { onMounted, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useArticleStore } from '@/stores/articles';
+import { useAuthStore } from '@/stores/auth';
 import { formatDate } from '@/utils/utils';
 import Navbar from '@/components/Navbar.vue';
 
+
 const router = useRouter();
 const articleStore = useArticleStore();
+const authStore = useAuthStore();
+const isAdmin = computed(() => authStore.isAdmin);
+
+
+watch(
+  () => authStore.$state,
+  (newState) => {
+    isAdmin.value;
+    articleStore.fetchArticles(articleStore.currentPage);
+  },
+  { immediate: true }
+)
 
 function changePage(page) {
   articleStore.fetchArticles(page);
@@ -23,6 +37,11 @@ onMounted(() => {
       <template #left>
         <div class="flex-1">
           <a class="btn btn-ghost normal-case text-xl">Articles</a>
+        </div>
+      </template>
+      <template #right v-if="isAdmin">
+        <div class="flex-1">
+          <a class="btn btn-ghost normal-case text-xl" @click="router.push('/article-editor')">Write article</a>
         </div>
       </template>
     </Navbar>
