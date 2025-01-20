@@ -6,14 +6,11 @@ import Home from '@/views/Home.vue';
 import PageNotFound from '@/views/PageNotFound.vue';
 import Dashboard from '@/views/Dashboard.vue';
 import '@fortawesome/fontawesome-free/css/all.css';
-import CerHtml from '@/views/cer_html.vue';
 import CourseList from '@/views/CoursesList.vue';
 import CourseDetails from '@/views/CourseDetails.vue';
 import ArticlesList from '@/views/ArticlesList.vue';
 import ArticleDetails from '@/views/ArticleDetails.vue';
 import FavoriteArticles from '@/views/FavoriteArticles.vue';
-import CourseList from '@/views/CoursesList.vue';
-import CourseDetails from '@/views/CourseDetails.vue';
 import Checkout from "@/views/Checkout.vue";
 
 
@@ -62,11 +59,7 @@ const routes = [
     path: '/course/:id',
     component: CourseDetails,
   },
-  {
-    path: '/cer_html',
-    name: 'CerHtml',
-    component: CerHtml,
-  },
+
   { 
     path: "/checkout",
     name: "Checkout",
