@@ -2,17 +2,19 @@
 
 require_once 'database.php';
 
-class CoursesController {
+class CoursesController
+{
 
     private $db;
     private $conn;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->db = new Database();
         $this->conn = $this->db->getConnection();
     }
 
-    public function get_courses(): array 
+    public function get_courses(): array
     {
         try {
             $stmt = $this->conn->query("SELECT * FROM Course");
@@ -23,7 +25,7 @@ class CoursesController {
         }
     }
 
-    public function get_course(int $id): array 
+    public function get_course(int $id): array
     {
         try {
             $stmt = $this->conn->prepare("SELECT * FROM Course WHERE id = :id");

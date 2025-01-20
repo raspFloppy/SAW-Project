@@ -26,10 +26,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 include 'AuthController.php';
 include 'ArticleController.php';
 include 'CommentController.php';
+include 'CoursesController.php';
 
 $controller = new AuthController();
 $articles_controller = new ArticleController();
 $comments_controller = new CommentController();
+$course_controller = new CoursesController();
+
 $data = json_decode(file_get_contents('php://input'), true);
 $action = $_GET['action'] ?? '';
 
@@ -81,6 +84,7 @@ switch ($action) {
         $result = $articles_controller->get_articles($page, $per_page);
         echo json_encode($result);
         break;
+
     case 'get_article':
         $id = isset($_GET['id']) ? intval($_GET['id']) : null;
         $user_id = isset($_GET['user_id']) ? intval($_GET['user_id']) : null;
@@ -93,6 +97,7 @@ switch ($action) {
         $result = $articles_controller->get_article($id, $user_id);
         echo json_encode($result);
         break;
+
     case 'set_favorite':
         $article_id = $data['article_id'] ?? null;
         $user_id = $data['user_id'] ?? null;
@@ -109,6 +114,7 @@ switch ($action) {
         $result = $articles_controller->set_favorite($article_id, $user_id);
         echo json_encode($result);
         break;
+
     case 'get_favorites':
         $user_id = $data['user_id'] ?? null;
         if (!$user_id) {
@@ -119,6 +125,7 @@ switch ($action) {
         $result = $articles_controller->get_favorites($user_id);
         echo json_encode($result);
         break;
+
     case 'get_favorites_count':
         $user_id = $_GET['user_id'] ?? null;
         if (!$user_id) {
@@ -129,6 +136,7 @@ switch ($action) {
         $result = $articles_controller->get_favorites_count($user_id);
         echo json_encode($result);
         break;
+
     case 'get_comments':
         $article_id = $_GET['article_id'] ?? null;
         $user_id = $_GET['user_id'] ?? null;
@@ -140,6 +148,7 @@ switch ($action) {
         $result = $comments_controller->get_comments($article_id);
         echo json_encode($result);
         break;
+
     case 'write_comment':
         $user_id = $data['user_id'] ?? null;
         $article_id = $data['article_id'] ?? null;
@@ -162,6 +171,23 @@ switch ($action) {
         $result = $comments_controller->write_comment($user_id, $article_id, $comment);
         echo json_encode($result);
         break;
+
+    case 'get_courses':
+        $result = $course_controller->get_courses();
+        echo json_encode($result);
+        break;
+
+    case 'get_course':
+        $id = $_GET['id'] ?? null;
+        if (!$id) {
+            echo json_encode(['success' => false, 'message' => 'Invalid course ID']);
+            break;
+        }
+
+        $result = $course_controller->get_course($id);
+        echo json_encode($result);
+        break;
+
     default:
         echo json_encode(['success' => false, 'message' => 'Invalid Action']);
         break;

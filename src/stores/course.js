@@ -16,6 +16,8 @@ export const useCourseStore = defineStore('course', {
         const response = await axios.get('http://localhost:8000/index.php?action=get_courses', {
           withCredentials: true
         });
+
+        console.log(response)
         if (response.data.success) {
             this.courses = response.data.courses;
         }

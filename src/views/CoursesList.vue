@@ -1,22 +1,22 @@
 <script setup>
-    import { onMounted } from 'vue';
-    import { useRouter } from 'vue-router';
-    import { useCourseStore } from '@/stores/course';
-    import backgroundImage from '@/assets/images/background.jpg';
-    import htmlImage from '@/assets/images/html2.png';
-    import javascriptImage from '@/assets/images/java.jpeg';
-    import cssImage from '@/assets/images/css.png';
+import { onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { useCourseStore } from '@/stores/course';
+import backgroundImage from '@/assets/images/background.jpg';
+import htmlImage from '@/assets/images/html2.png';
+import javascriptImage from '@/assets/images/java.jpeg';
+import cssImage from '@/assets/images/css.png';
 
-    const router = useRouter();
-    const courseStore = useCourseStore();
-    
-    onMounted(() => {
-      courseStore.fetchCourses();
-    });
+const router = useRouter();
+const courseStore = useCourseStore();
 
-    function goToCourse(id) {
-        router.push(`/course/${id}`);
-    }
+onMounted(() => {
+    courseStore.fetchCourses();
+});
+
+function goToCourse(id) {
+    router.push(`/course/${id}`);
+}
 </script>
 
 <template>
@@ -29,10 +29,10 @@
                     </figure>
                     <div class="card-body">
                         <h2 class="card-title">{{ course.title }}</h2>
-                        <p> {{course.subtitle }} </p>
+                        <p> {{ course.subtitle }} </p>
                         <div class="card-actions justify-end">
-                        <button class="btn btn-primary" @click="goToCourse(course.id)">View Course</button>
-                    </div>
+                            <button class="btn btn-primary" @click="goToCourse(course.id)">View Course</button>
+                        </div>
                     </div>
                 </div>
             </div>

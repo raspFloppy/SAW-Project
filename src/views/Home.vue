@@ -1,14 +1,4 @@
 <template>
-  <ul class="menu menu-vertical lg:menu-horizontal bg-base-200 rounded-box">
-    <li><a>HTML</a></li>
-    <li><a>CSS</a></li>
-    <li><a>JAVA SCRIPT</a></li>
-    <li><a>PYTHON</a></li>
-    <li><a>C</a></li>
-    <li><a>C++</a></li>
-    <li><a>....</a></li>
-  </ul>
-
   <div class="hero min-h-screen" :style="{ backgroundImage: `url(${backgroundImage})` }">
     <div class="hero-overlay bg-opacity-60"></div>
     <div class="hero-content text-neutral-content text-center">
@@ -22,7 +12,7 @@
     </div>
   </div>
 
-  
+
 
   <footer class="footer bg-neutral text-neutral-content p-10">
     <nav>

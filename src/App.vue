@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import LogoutButton from './components/LogoutButton.vue';
 import AvatarButton from './components/AvatarButton.vue';
-import Cart from "./components/Cart.vue"; 
+import Cart from "./components/Cart.vue";
 
 
 export default {
@@ -30,17 +30,20 @@ export default {
     <RouterLink to="/articles" class="mx-4">Articles</RouterLink>
     <template v-if="!isLoggedIn">
       <div class="ml-auto flex space-x-2">
+        <Cart />
         <RouterLink to="/login" class="btn btn-ghost">Login</RouterLink>
         <RouterLink to="/registration" class="btn btn-outline btn-secondary">Sign Up</RouterLink>
       </div>
     </template>
     <template v-else>
       <RouterLink to="/dashboard" class="mx-4">Dashboard</RouterLink>
-      <div style="margin-left: auto;">
+
+      <div style="margin-left: auto; display: flex; align-items: center;">
+        <Cart class="ml-1" />
         <AvatarButton class="ml-2" />
       </div>
     </template>
-    <Cart /> <!-- Usa il componente Cart qui -->
+
   </nav>
   <main>
     <RouterView />
