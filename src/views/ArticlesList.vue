@@ -83,7 +83,8 @@ onMounted(async () => {
             v-for="article in articleStore.currentPageArticles"
             :key="article.id"
             class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow cursor-pointer"
-            @click="router.push(`/article/${article.id}`)">
+            @click="router.push(`/article/${article.id}`)"
+          >
             <div class="card-body">
               <h2 class="card-title">{{ article.title }}</h2>
               <p class="text-base-content/70">By {{ article.author }}</p>
@@ -92,7 +93,6 @@ onMounted(async () => {
                 <div>
                   {{ article.favorite_count }}
                 </div>
-
                 <button class="btn btn-ghost btn-sm">Read more →</button>
               </div>
             </div>
@@ -102,8 +102,11 @@ onMounted(async () => {
         <!-- Paginazione -->
         <div class="flex flex-col items-center mt-8">
           <div class="join grid grid-cols-2 w-full max-w-md">
-            <button class="join-item btn btn-outline" :disabled="articleStore.currentPage === 1"
-              @click="changePage(articleStore.currentPage - 1)">
+            <button
+              class="join-item btn btn-outline"
+              :disabled="articleStore.currentPage === 1"
+              @click="changePage(articleStore.currentPage - 1)"
+            >
               Previous page
             </button>
             <button

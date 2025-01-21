@@ -41,17 +41,35 @@ export const useArticleStore = defineStore("article", {
         return;
       }
 
-      const searchTerm = this.searchQuery.toLowerCase();
-      this.filteredArticles = this.articles.filter(article => 
-        article.title.toLowerCase().includes(searchTerm) ||
-        article.author.toLowerCase().includes(searchTerm) ||
-        (article.content && article.content.toLowerCase().includes(searchTerm))
-      );
+      const searchTerms = query.split(/\s+/);
+      this.filteredArticles = this.articles.filter((article) => {
+        const searchableText = [
+          article.title || "",
+          article.author || "",
+          article.content || "",
+          article.description || "",
+        ]
+          .map((text) => text.toLowerCase())
+          .join(" ");
 
-      // Update pagination for filtered results
+        return searchTerms.every((term) => searchableText.includes(term));
+      });
+
+      this.updatePagination();
+      this.currentPage = 1; // Torna alla prima pagina dei risultati
+    },
+
+    // Ripristina lo stato di ricerca
+    resetSearch() {
+      this.filteredArticles = [...this.articles];
+      this.updatePagination();
+    },
+
+    // Aggiorna la paginazione in base agli articoli filtrati
+    updatePagination() {
       this.total = this.filteredArticles.length;
-      this.totalPages = Math.ceil(this.total / this.perPage);
-      this.currentPage = 1;
+      this.totalPages = Math.max(1, Math.ceil(this.total / this.perPage));
+      this.currentPage = Math.min(this.currentPage, this.totalPages);
     },
 
     // Cambia pagina
@@ -92,7 +110,8 @@ export const useArticleStore = defineStore("article", {
       this.searchQuery = "";
       this.resetSearch();
     },
-  
+
+
 
     async toggleFavorite() {
       const user = JSON.parse(localStorage.getItem("user"));
