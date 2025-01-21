@@ -6,6 +6,8 @@ const API_BASE = import.meta.env.VITE_API_BASE;
 export const useArticleStore = defineStore("article", {
   state: () => ({
     articles: [],
+    filteredArticles: [], // Add this to store filtered results
+    searchQuery: "", // Add this to store search query
     currentArticle: null,
     loading: false,
     error: null,
@@ -18,6 +20,27 @@ export const useArticleStore = defineStore("article", {
   }),
 
   actions: {
+    // Add the search function
+    async searchArticles() {
+      if (!this.searchQuery.trim()) {
+        this.filteredArticles = this.articles;
+        return;
+      }
+
+      const searchTerm = this.searchQuery.toLowerCase();
+      this.filteredArticles = this.articles.filter(article => 
+        article.title.toLowerCase().includes(searchTerm) ||
+        article.author.toLowerCase().includes(searchTerm) ||
+        (article.content && article.content.toLowerCase().includes(searchTerm))
+      );
+
+      // Update pagination for filtered results
+      this.total = this.filteredArticles.length;
+      this.totalPages = Math.ceil(this.total / this.perPage);
+      this.currentPage = 1;
+    },
+
+    // Modify fetchArticles to work with filtered results
     async fetchArticles(page = 1) {
       this.loading = true;
       try {
@@ -32,6 +55,7 @@ export const useArticleStore = defineStore("article", {
 
         if (response.data.success) {
           this.articles = response.data.articles;
+          this.filteredArticles = this.articles; // Initialize filtered articles
           this.currentPage = response.data.current_page;
           this.totalPages = response.data.last_page;
           this.total = response.data.total;
@@ -40,39 +64,6 @@ export const useArticleStore = defineStore("article", {
         }
       } catch (error) {
         this.error = error.message || "Failed to fetch articles";
-        throw error;
-      } finally {
-        this.loading = false;
-      }
-    },
-
-    async fetchArticleById(article_id) {
-      this.loading = true;
-      try {
-        const user = JSON.parse(localStorage.getItem("user"));
-        const userId = user ? user.id : null;
-
-        const response = await axios.get(API_BASE, {
-          withCredentials: true,
-          params: {
-            action: "get_article",
-            id: article_id,
-            user_id: userId,
-          },
-        });
-
-        if (response.data.success) {
-          this.currentArticle = {
-            ...response.data.article,
-            is_favorite: response.data.article.is_favorite || false,
-          };
-          this.updateArticleCommentsCount();
-          this.updateArticleLikesCount();
-        } else {
-          throw new Error(response.data.message || "Failed to fetch article");
-        }
-      } catch (error) {
-        this.error = error.message || "Failed to fetch article";
         throw error;
       } finally {
         this.loading = false;

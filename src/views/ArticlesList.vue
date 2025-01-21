@@ -11,6 +11,11 @@ const articleStore = useArticleStore();
 const authStore = useAuthStore();
 const isAdmin = computed(() => authStore.isAdmin);
 
+// Add the searchArticles function here
+const searchArticles = () => {
+  articleStore.searchArticles();
+};
+
 watch(
   () => authStore.$state,
   (newState) => {
@@ -18,11 +23,11 @@ watch(
     articleStore.fetchArticles(articleStore.currentPage);
   },
   { immediate: true }
-)
+);
 
 async function changePage(page) {
   await articleStore.fetchArticles(page);
-};
+}
 
 onMounted(async () => {
   await articleStore.fetchArticles(1);
@@ -61,7 +66,7 @@ onMounted(async () => {
 
       <div v-else>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div v-for="article in articleStore.articles" :key="article.id"
+          <div v-for="article in articleStore.filteredArticles" :key="article.id"
             class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow cursor-pointer"
             @click="router.push(`/article/${article.id}`)">
             <div class="card-body">
