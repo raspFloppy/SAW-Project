@@ -39,6 +39,14 @@ onMounted(async () => {
       </template>
     </Navbar>
     <div class="container mx-auto p-8">
+      <div class="flex justify-center mb-6">
+      <input
+        v-model="articleStore.searchQuery"
+        type="text"
+        class="input input-bordered w-full max-w-md"
+        placeholder="Search articles..."/>
+        <button @click="searchArticles" class="btn btn-primary ml-2">Search</button>
+      </div>
       <div v-if="articleStore.loading" class="flex justify-center">
         <span class="loading loading-spinner loading-lg"></span>
       </div>
