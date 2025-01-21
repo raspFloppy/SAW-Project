@@ -146,7 +146,7 @@ switch ($action) {
         break;
 
     case 'get_favorites':
-        $user_id = $data['user_id'] ?? null;
+        $user_id = $_GET['user_id'] ?? null;
         if (!$user_id) {
             echo json_encode(['success' => false, 'message' => 'Invalid user ID']);
             break;
@@ -299,6 +299,69 @@ switch ($action) {
         }
 
         $result = $admin_controller->delete_article($article_id);
+        echo json_encode($result);
+        break;
+
+    case 'delete_user':
+        $user_id = $data['user_id'] ?? null;
+        $admin_id = $data['admin_id'] ?? null;
+
+        if (!$user_id) {
+            echo json_encode(['success' => false, 'message' => 'Invalid user ID']);
+            break;
+        }
+
+        if (!$admin_id) {
+            echo json_encode(['success' => false, 'message' => 'Invalid admin ID']);
+            break;
+        }
+
+        $result = $admin_controller->delete_user($user_id, $admin_id);
+        echo json_encode($result);
+        break;
+
+    case 'get_all_dislikes':
+        $result = $admin_controller->count_all_dislikes();
+        echo json_encode($result);
+        break;
+
+    case 'get_all_favorites':
+        $result = $admin_controller->count_all_favorites();
+        echo json_encode($result);
+        break;
+
+    case 'change_user_type':
+        $user_id = $data['user_id'] ?? null;
+        $admin_id = $data['admin_id'] ?? null;
+        $type = $data['type'] ?? null;
+
+        if (!$user_id) {
+            echo json_encode(['success' => false, 'message' => 'Invalid user ID']);
+            break;
+        }
+
+        if (!$admin_id) {
+            echo json_encode(['success' => false, 'message' => 'Invalid admin ID']);
+            break;
+        }
+
+        if (!$type) {
+            echo json_encode(['success' => false, 'message' => 'Invalid user type']);
+            break;
+        }
+
+        $result = $admin_controller->change_user_type($user_id, $admin_id, $type);
+        echo json_encode($result);
+        break;
+
+    case 'delete_profile':
+        $user_id = $data['user_id'] ?? null;
+        if (!$user_id) {
+            echo json_encode(['success' => false, 'message' => 'Invalid user ID']);
+            break;
+        }
+
+        $result = $controller->delete_profile($user_id);
         echo json_encode($result);
         break;
     default:

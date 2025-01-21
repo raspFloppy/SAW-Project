@@ -59,6 +59,26 @@ async function handleUpdateProfile() {
     }
 }
 
+async function handleProfileDelete() {
+    isLoading.value = true
+    try {
+        if (confirm('Are you sure you want to delete your profile?')) {
+
+            const result = await auth.deleteProfile()
+            if (result.success) {
+                showAlert(alert, result.success, 'Profile deleted successfully')
+                router.push('/login')
+            } else {
+                showAlert(alert, result.success, result.message)
+            }
+        }
+    } catch (error) {
+        showAlert(alert, false, 'Failed to delete profile')
+    } finally {
+        isLoading.value = false
+    }
+}
+
 async function getFavoritesCount() {
     try {
         const result = await article.getFavoritesCount()
@@ -69,10 +89,11 @@ async function getFavoritesCount() {
 }
 
 async function goToFavorites() {
-    router.push('/dashboard')
+    router.push('/favorite_articles')
 }
 
 onMounted(async () => {
+    await auth.validateSession();
     if (!auth.isLoggedIn) {
         router.push('/login')
     } else {
@@ -87,10 +108,16 @@ onMounted(async () => {
         <Navbar>
             <template #left>
                 <div class="flex-1">
-                    <RouterLink to="/dashboard" class="btn btn-ghost normal-case text-xl">
+                    <RouterLink :class="{ 'underline': $route.path === '/dashboard' }" to="/dashboard"
+                        class="btn btn-ghost normal-case text-xl">
                         User Dashboard
                     </RouterLink>
-                    <RouterLink v-if="auth.isAdmin" to='/admin_dashboard' class="btn btn-ghost normal-case text-xl">
+                    <RouterLink :class="{ 'underline': $route.path === '/favorite_articles' }" to="/favorite_articles"
+                        class="btn btn-ghost normal-case text-xl">
+                        Favorites Dashboard
+                    </RouterLink>
+                    <RouterLink v-if="auth.isAdmin" :class="{ 'underline': $route.path === '/admin_dashboard' }"
+                        to='/admin_dashboard' class="btn btn-ghost normal-case text-xl">
                         Admin Dashboard
                     </RouterLink>
                 </div>
@@ -201,19 +228,6 @@ onMounted(async () => {
                     <div class="stat-title">Favorites</div>
                     <div class="stat-value text-secondary text-lg sm:text-2xl">{{ favoritesCount }}</div>
                     <div class="stat-desc">Saved Items</div>
-                </div>
-
-                <div class="stat">
-                    <div class="stat-figure text-accent">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                            class="w-6 h-6 sm:w-8 sm:h-8">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                    <div class="stat-title">Courses Done</div>
-                    <div class="stat-value text-accent text-lg sm:text-2xl">12</div>
-                    <div class="stat-desc">Completed</div>
                 </div>
             </div>
         </div>

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useArticleStore } from '@/stores/articles'
 import { useAdminStore } from '@/stores/admin'
@@ -20,7 +20,6 @@ const stats = ref({
     totalDislikes: 0,
     totalComments: 0
 })
-
 const selectedArticle = ref({
     id: null,
     title: '',
@@ -28,6 +27,71 @@ const selectedArticle = ref({
     author: '',
     created_at: ''
 })
+const userSortConfig = ref({
+    key: 'firstname',
+    direction: 'asc'
+})
+const articleSortConfig = ref({
+    key: 'title',
+    direction: 'asc'
+})
+
+const sortedUsers = computed(() => {
+    const sortedArray = [...users.value]
+    return sortedArray.sort((a, b) => {
+        let aVal = a[userSortConfig.value.key]
+        let bVal = b[userSortConfig.value.key]
+
+        if (userSortConfig.value.key === 'created_at') {
+            aVal = new Date(aVal)
+            bVal = new Date(bVal)
+        }
+
+        if (['comments', 'favorites', 'dislikes'].includes(userSortConfig.value.key)) {
+            aVal = Number(aVal)
+            bVal = Number(bVal)
+        }
+
+        if (aVal < bVal) return userSortConfig.value.direction === 'asc' ? -1 : 1
+        if (aVal > bVal) return userSortConfig.value.direction === 'asc' ? 1 : -1
+        return 0
+    })
+})
+
+const sortedArticles = computed(() => {
+    const sortedArray = [...articleStore.articles]
+    return sortedArray.sort((a, b) => {
+        let aVal = a[articleSortConfig.value.key]
+        let bVal = b[articleSortConfig.value.key]
+
+        if (articleSortConfig.value.key === 'created_at') {
+            aVal = new Date(aVal)
+            bVal = new Date(bVal)
+        }
+
+        if (aVal < bVal) return articleSortConfig.value.direction === 'asc' ? -1 : 1
+        if (aVal > bVal) return articleSortConfig.value.direction === 'asc' ? 1 : -1
+        return 0
+    })
+})
+
+function toggleUserSort(key) {
+    if (userSortConfig.value.key === key) {
+        userSortConfig.value.direction = userSortConfig.value.direction === 'asc' ? 'desc' : 'asc'
+    } else {
+        userSortConfig.value.key = key
+        userSortConfig.value.direction = 'asc'
+    }
+}
+
+function toggleArticleSort(key) {
+    if (articleSortConfig.value.key === key) {
+        articleSortConfig.value.direction = articleSortConfig.value.direction === 'asc' ? 'desc' : 'asc'
+    } else {
+        articleSortConfig.value.key = key
+        articleSortConfig.value.direction = 'asc'
+    }
+}
 
 async function loadData() {
     try {
@@ -39,9 +103,8 @@ async function loadData() {
         stats.value = {
             totalArticles: articleStore.total,
             totalUsers: adminStore.totalUsers,
-            totalLikes: 0,
-            totalDislikes: 0,
-            totalComments: 0,
+            totalLikes: adminStore.totalLikes,
+            totalDislikes: adminStore.totalDislikes,
         }
     } catch (error) {
         console.error('Failed to load data:', error)
@@ -89,7 +152,6 @@ async function deleteArticle(articleId) {
 }
 
 async function deleteUser(userId) {
-    /*
     if (confirm('Are you sure you want to delete this user?')) {
         try {
             await adminStore.deleteUser(userId)
@@ -98,7 +160,6 @@ async function deleteUser(userId) {
             console.error('Failed to delete user:', error)
         }
     }
-    */
 }
 
 async function changePage(page) {
@@ -117,6 +178,19 @@ async function cancelEdit() {
     activeTab.value = 'dashboard'
 }
 
+async function handleRoleChange(userId, event) {
+    const newRole = event.target.value;
+    try {
+        if (confirm('Are you sure you want to change this user\'s role?')) {
+            await adminStore.changeUserRole(userId, newRole);
+            await loadData();
+        }
+        return
+    } catch (error) {
+        console.error('Failed to change user role:', error);
+    }
+}
+
 watch(
     () => auth.$state,
     (newState) => {
@@ -129,6 +203,9 @@ onMounted(async () => {
     await auth.validateSession()
     await articleStore.fetchArticles(1)
     await adminStore.getAllUsers();
+    await adminStore.getAllDislikes();
+    await adminStore.getAllLikes();
+
     if (!auth.isAdmin) {
         router.push('/dashboard')
         return
@@ -142,17 +219,22 @@ onMounted(async () => {
         <Navbar>
             <template #left>
                 <div class="flex-1">
-                    <RouterLink to="/dashboard" class="btn btn-ghost normal-case text-xl">
+                    <RouterLink :class="{ 'underline': $route.path === '/dashboard' }" to="/dashboard"
+                        class="btn btn-ghost normal-case text-xl">
                         User Dashboard
                     </RouterLink>
-                    <RouterLink v-if="auth.isAdmin" to='/admin_dashboard' class="btn btn-ghost normal-case text-xl">
+                    <RouterLink :class="{ 'underline': $route.path === '/favorite_articles' }" to="/favorite_articles"
+                        class="btn btn-ghost normal-case text-xl">
+                        Favorites Dashboard
+                    </RouterLink>
+                    <RouterLink v-if="auth.isAdmin" :class="{ 'underline': $route.path === '/admin_dashboard' }"
+                        to='/admin_dashboard' class="btn btn-ghost normal-case text-xl">
                         Admin Dashboard
                     </RouterLink>
                 </div>
             </template>
         </Navbar>
 
-        <!-- Stats Overview -->
         <div class="p-4 grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="stat bg-base-100 shadow-xl rounded-box">
                 <div class="stat-title">Total Articles</div>
@@ -172,7 +254,6 @@ onMounted(async () => {
             </div>
         </div>
 
-        <!-- Tabs -->
         <div class="tabs tabs-boxed justify-center m-4">
             <a class="tab" :class="{ 'tab-active': activeTab === 'users' }" @click="activeTab = 'users'">Users</a>
             <a class="tab" :class="{ 'tab-active': activeTab === 'dashboard' }"
@@ -181,29 +262,42 @@ onMounted(async () => {
                 Editor</a>
         </div>
 
-        <!-- Articles Dashboard Tab -->
         <div v-if="activeTab === 'dashboard'" class="px-4">
-            <!-- Articles Table -->
             <div class="overflow-x-auto">
                 <h2 class="text-2xl font-bold mb-4">Articles Management</h2>
                 <table class="table w-full bg-base-100 rounded-box">
                     <thead>
                         <tr>
-                            <th>Title</th>
-                            <th>Author</th>
-                            <th>Created At</th>
+                            <th @click="toggleArticleSort('title')" class="cursor-pointer hover:bg-base-200">
+                                Title
+                                <span v-if="articleSortConfig.key === 'title'">
+                                    {{ articleSortConfig.direction === 'asc' ? '↑' : '↓' }}
+                                </span>
+                            </th>
+                            <th @click="toggleArticleSort('author')" class="cursor-pointer hover:bg-base-200">
+                                Author
+                                <span v-if="articleSortConfig.key === 'author'">
+                                    {{ articleSortConfig.direction === 'asc' ? '↑' : '↓' }}
+                                </span>
+                            </th>
+                            <th @click="toggleArticleSort('created_at')" class="cursor-pointer hover:bg-base-200">
+                                Created At
+                                <span v-if="articleSortConfig.key === 'created_at'">
+                                    {{ articleSortConfig.direction === 'asc' ? '↑' : '↓' }}
+                                </span>
+                            </th>
                             <th>Likes</th>
                             <th>Dislike</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="article in articleStore.articles" :key="article.id">
+                        <tr v-for="article in sortedArticles" :key="article.id">
                             <td>{{ article.title }}</td>
                             <td>{{ article.author }}</td>
                             <td>{{ article.created_at }}</td>
                             <td>{{ article.favorite_count }}</td>
-                            <td>{{ article.dislike_count }}</td>
+                            <td>{{ article.dislikes }}</td>
                             <td class="flex gap-2">
                                 <button class="btn btn-primary btn-sm" @click="editArticle(article)">
                                     Edit
@@ -216,7 +310,6 @@ onMounted(async () => {
                     </tbody>
                 </table>
 
-                <!-- Pagination -->
                 <div class="flex justify-center mt-4">
                     <div class="join">
                         <button class="join-item btn" :disabled="articleStore.currentPage === 1"
@@ -233,28 +326,75 @@ onMounted(async () => {
             </div>
         </div>
 
-        <!-- Users Management Tab -->
-        <div v-if="activeTab === 'users'" class="px-4">
+        <div v-if="activeTab === 'users'" class="px-4 pb-4">
             <div class="overflow-x-auto">
                 <h2 class="text-2xl font-bold mb-4">Users Management</h2>
                 <table class="table w-full bg-base-100 rounded-box">
                     <thead>
                         <tr>
-                            <th>Firstname</th>
-                            <th>Lastname</th>
+                            <th @click="toggleUserSort('firstname')" class="cursor-pointer hover:bg-base-200">
+                                Firstname
+                                <span v-if="userSortConfig.key === 'firstname'">
+                                    {{ userSortConfig.direction === 'asc' ? '↑' : '↓' }}
+                                </span>
+                            </th>
+                            <th @click="toggleUserSort('lastname')" class="cursor-pointer hover:bg-base-200">
+                                Lastname
+                                <span v-if="userSortConfig.key === 'lastname'">
+                                    {{ userSortConfig.direction === 'asc' ? '↑' : '↓' }}
+                                </span>
+                            </th>
                             <th>Email</th>
-                            <th>Type</th>
-                            <th>Joined Date</th>
+                            <th @click="toggleUserSort('type')" class="cursor-pointer hover:bg-base-200">
+                                Type
+                                <span v-if="userSortConfig.key === 'type'">
+                                    {{ userSortConfig.direction === 'asc' ? '↑' : '↓' }}
+                                </span>
+                            </th>
+                            <th @click="toggleUserSort('comments')" class="cursor-pointer hover:bg-base-200">
+                                Comments
+                                <span v-if="userSortConfig.key === 'comments'">
+                                    {{ userSortConfig.direction === 'asc' ? '↑' : '↓' }}
+                                </span>
+                            </th>
+                            <th @click="toggleUserSort('favorites')" class="cursor-pointer hover:bg-base-200">
+                                Likes
+                                <span v-if="userSortConfig.key === 'favorites'">
+                                    {{ userSortConfig.direction === 'asc' ? '↑' : '↓' }}
+                                </span>
+                            </th>
+                            <th @click="toggleUserSort('dislikes')" class="cursor-pointer hover:bg-base-200">
+                                Dislike
+                                <span v-if="userSortConfig.key === 'dislikes'">
+                                    {{ userSortConfig.direction === 'asc' ? '↑' : '↓' }}
+                                </span>
+                            </th>
+                            <th @click="toggleUserSort('created_at')" class="cursor-pointer hover:bg-base-200">
+                                Joined Date
+                                <span v-if="userSortConfig.key === 'created_at'">
+                                    {{ userSortConfig.direction === 'asc' ? '↑' : '↓' }}
+                                </span>
+                            </th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="user in users" :key="user.id">
+                        <tr v-for="user in sortedUsers" :key="user.id">
                             <td>{{ user.firstname }}</td>
                             <td>{{ user.lastname }}</td>
                             <td>{{ user.email }}</td>
                             <td>{{ user.type }}</td>
+                            <td>{{ user.comments }}</td>
+                            <td>{{ user.favorites }}</td>
+                            <td>{{ user.dislikes }}</td>
                             <td>{{ user.created_at }}</td>
+                            <td>
+                                <select class="select select-primary w-full max-w-xs" :value="user.type"
+                                    @change="handleRoleChange(user.id, $event)">
+                                    <option value="normal">normal</option>
+                                    <option value="admin">admin</option>
+                                </select>
+                            </td>
                             <td>
                                 <button class="btn btn-error btn-sm" @click="deleteUser(user.id)">
                                     Delete
@@ -266,7 +406,6 @@ onMounted(async () => {
             </div>
         </div>
 
-        <!-- Editor Tab -->
         <div v-if="activeTab === 'editor'" class="p-4">
             <div class="max-w-4xl mx-auto bg-base-100 rounded-box p-6 shadow-xl">
                 <h2 class="text-2xl font-bold mb-4">

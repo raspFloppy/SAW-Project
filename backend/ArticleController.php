@@ -22,7 +22,22 @@ class ArticleController extends AuthController
 
             $count_stmt = $this->conn->query("SELECT COUNT(*) FROM Article");
             $total = $count_stmt->fetchColumn();
-            $stmt = $this->conn->prepare("SELECT Article.*, COUNT(UserFavorite.article_id) AS favorite_count FROM Article LEFT JOIN UserFavorite ON Article.id = UserFavorite.article_id GROUP BY Article.id ORDER BY Article.created_at DESC LIMIT :limit OFFSET :offset;");
+            $stmt = $this->conn->prepare("
+                SELECT Article.*,
+                (SELECT COUNT(UserFavorite.article_id) 
+                FROM UserFavorite 
+                WHERE UserFavorite.article_id = Article.id) AS favorite_count,
+                (SELECT COUNT(UserDislikes.article_id) 
+                FROM UserDislikes 
+                WHERE UserDislikes.article_id = Article.id) AS dislikes,
+                (SELECT COUNT(Comment.article_id) 
+                FROM Comment 
+                WHERE Comment.article_id = Article.id) AS comments_count
+                FROM Article
+                ORDER BY Article.created_at DESC 
+                LIMIT :limit 
+                OFFSET :offset
+            ");
             $stmt->bindValue(':limit', $per_page, PDO::PARAM_INT);
             $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
             $stmt->execute();
@@ -145,10 +160,25 @@ class ArticleController extends AuthController
 
     public function get_favorites(int $user_id)
     {
+        if (!$this->auth->isUserLogged()) {
+            return ['success' => false, 'message' => 'User not logged in'];
+        }
+
+        if ($_SESSION['id'] !== $user_id) {
+            return ['success' => false, 'message' => 'User not authorized'];
+        }
+
         try {
-            $stmt = $this->conn->prepare("SELECT * FROM UserFavorite WHERE user_id = :user_id");
+            $stmt = $this->conn->prepare(
+                "
+                SELECT a.id, a.title, a.author, a.content, a.created_at
+                FROM UserFavorite uf
+                JOIN Article a ON uf.article_id = a.id
+                WHERE uf.user_id = :user_id"
+            );
             $stmt->execute(['user_id' => $user_id]);
             $favorites = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
             return ['success' => true, 'favorites' => $favorites];
         } catch (PDOException $e) {
             return ['success' => false, 'message' => 'Database error: ' . $e->getMessage()];
@@ -157,6 +187,14 @@ class ArticleController extends AuthController
 
     public function get_favorites_count(int $user_id)
     {
+        if (!$this->auth->isUserLogged()) {
+            return ['success' => false, 'message' => 'User not logged in'];
+        }
+
+        if ($_SESSION['id'] !== $user_id) {
+            return ['success' => false, 'message' => 'User not authorized'];
+        }
+
         try {
             $stmt = $this->conn->prepare("SELECT COUNT(*) FROM UserFavorite WHERE user_id = :user_id");
             $stmt->execute(['user_id' => $user_id]);

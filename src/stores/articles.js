@@ -132,7 +132,6 @@ export const useArticleStore = defineStore("article", {
       if (!userId) {
         throw new Error("User must be logged in");
       }
-
       try {
         const response = await axios.get(API_BASE, {
           params: {
@@ -367,6 +366,8 @@ export const useArticleStore = defineStore("article", {
         return 0;
       }
     },
+
+    async deleteComment(comment_id, user_id) {},
 
     async writeArticle(title, content, author) {
       const user = JSON.parse(localStorage.getItem("user"));

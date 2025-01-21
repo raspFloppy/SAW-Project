@@ -69,7 +69,7 @@ onMounted(async () => {
                     </div>
                 </div>
             </div>
-            <div class="prose max-w-none">
+            <div class="prose max-w-none break-words">
                 {{ articleStore.currentArticle.content }}
             </div>
             <div class="mt-36" id="comment_section">

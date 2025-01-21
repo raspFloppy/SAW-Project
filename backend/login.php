@@ -14,7 +14,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         $result = $authController->login($email, $password);
-
         echo json_encode($result);
         exit;
     } else {

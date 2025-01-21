@@ -30,7 +30,25 @@ class AdminController extends AuthController
         try {
             $this->conn->beginTransaction();
 
-            $stmt = $this->conn->prepare("SELECT id, firstname, lastname, email, created_at, type  FROM User WHERE id != :id");
+            $stmt = $this->conn->prepare("
+                SELECT 
+                    u.id, 
+                    u.firstname, 
+                    u.lastname, 
+                    u.email, 
+                    u.created_at, 
+                    u.type, 
+                    COUNT(DISTINCT c.id) AS comments, 
+                    COUNT(DISTINCT d.article_id) AS dislikes, 
+                    COUNT(DISTINCT f.article_id) AS favorites
+                FROM User u
+                LEFT JOIN Comment c ON u.id = c.user_id
+                LEFT JOIN UserDislikes d ON u.id = d.user_id
+                LEFT JOIN UserFavorite f ON u.id = f.user_id
+                WHERE u.id != :id
+                GROUP BY u.id, u.firstname, u.lastname, u.email, u.created_at, u.type
+            ");
+
             $stmt->execute(['id' => $id]);
             if ($stmt->rowCount() <= 0) {
                 $this->conn->rollBack();
@@ -147,6 +165,89 @@ class AdminController extends AuthController
 
             $this->conn->commit();
             return ['success' => true, 'message' => 'Article and related records deleted'];
+        } catch (PDOException $e) {
+            $this->conn->rollBack();
+            return ['success' => false, 'message' => 'Database error: ' . $e->getMessage()];
+        }
+    }
+
+
+    public function delete_user(int $user_id, int $admin_id)
+    {
+        if (!$this->auth->isUserLogged()) {
+            return ['success' => false, 'message' => 'User not logged in'];
+        }
+
+        if ($_SESSION['type'] !== 'admin') {
+            return ['success' => false, 'message' => 'User not an Admin'];
+        }
+
+        if ($admin_id === $user_id) {
+            return ['success' => false, 'message' => 'Admin cannot delete itself'];
+        }
+
+        try {
+            $this->conn->beginTransaction();
+
+            $tables = [
+                'Comment',
+                'UserDislikes',
+                'UserFavorite',
+            ];
+
+            foreach ($tables as $table) {
+                $stmt = $this->conn->prepare("DELETE FROM $table WHERE user_id = :user_id");
+                $stmt->execute(['user_id' => $user_id]);
+            }
+
+            $stmt = $this->conn->prepare("DELETE FROM User WHERE id = :user_id");
+            $stmt->execute(['user_id' => $user_id]);
+
+
+            if ($stmt->rowCount() === 0) {
+                $this->conn->rollBack();
+                return ['success' => false, 'message' => 'User not found'];
+            }
+
+            $this->conn->commit();
+            return ['success' => true, 'message' => 'User and related records deleted'];
+        } catch (PDOException $e) {
+            $this->conn->rollBack();
+            return ['success' => false, 'message' => 'Database error: ' . $e->getMessage()];
+        }
+    }
+
+    public function change_user_type(int $user_id, int $admin_id, string $new_role)
+    {
+        if (!$this->auth->isUserLogged()) {
+            return ['success' => false, 'message' => 'User not logged in'];
+        }
+
+        if ($_SESSION['type'] !== 'admin') {
+            return ['success' => false, 'message' => 'User not an Admin'];
+        }
+
+        if ($admin_id === $user_id) {
+            return ['success' => false, 'message' => 'Admin cannot change their own role'];
+        }
+
+        if (!in_array($new_role, ['normal', 'admin'])) {
+            return ['success' => false, 'message' => 'Invalid role type ' . $new_role];
+        }
+
+        try {
+            $this->conn->beginTransaction();
+
+            $stmt = $this->conn->prepare("UPDATE User SET type = :new_role WHERE id = :user_id");
+            $stmt->execute(['new_role' => $new_role, 'user_id' => $user_id]);
+
+            if ($stmt->rowCount() === 0) {
+                $this->conn->rollBack();
+                return ['success' => false, 'message' => 'User not found'];
+            }
+
+            $this->conn->commit();
+            return ['success' => true, 'message' => 'User role updated successfully'];
         } catch (PDOException $e) {
             $this->conn->rollBack();
             return ['success' => false, 'message' => 'Database error: ' . $e->getMessage()];

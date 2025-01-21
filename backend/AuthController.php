@@ -195,6 +195,45 @@ class AuthController
         }
     }
 
+    public function delete_profile(int $user_id)
+    {
+        if (!$this->isUserLogged()) {
+            return ['success' => false, 'message' => 'No user logged, cannot delete profile'];
+        }
+
+        if ($user_id !== $_SESSION['id']) {
+            return ['success' => false, 'message' => 'User not authorized'];
+        }
+
+        try {
+            $this->conn->beginTransaction();
+
+            $stmt = $this->conn->prepare("DELETE FROM Comment WHERE user_id = :user_id");
+            $stmt->execute(['user_id' => $user_id]);
+
+            $stmt = $this->conn->prepare("DELETE FROM UserFavorite WHERE user_id = :user_id");
+            $stmt->execute(['user_id' => $user_id]);
+
+            $stmt = $this->conn->prepare("DELETE FROM UserDislikes WHERE user_id = :user_id");
+            $stmt->execute(['user_id' => $user_id]);
+
+
+            $stmt = $this->conn->prepare("DELETE FROM User WHERE id = :id");
+            $stmt->execute(['id' => $user_id]);
+
+            if ($stmt->rowCount() === 0) {
+                $this->conn->rollBack();
+                return ['success' => false, 'message' => 'User not found'];
+            }
+
+            $this->conn->commit();
+            return ['success' => true, 'message' => 'Profile deleted'];
+        } catch (PDOException $e) {
+            $this->conn->rollBack();
+            return ['success' => false, 'message' => 'Database error: ' . $e->getMessage()];
+        }
+    }
+
     protected function isUserLogged(): bool
     {
         return isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true;

@@ -33,7 +33,7 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
-    path: "/favorite-articles",
+    path: "/favorite_articles",
     component: FavoriteArticles,
     meta: { requiresAuth: true },
   },

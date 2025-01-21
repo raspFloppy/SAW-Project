@@ -62,9 +62,11 @@ onMounted(async () => {
               <div class="card-actions justify-between items-center mt-4">
                 <div class="badge badge-outline">{{ formatDate(article.created_at) }}</div>
                 <div>
-                  {{ article.favorite_count }}
+                  {{ article.favorite_count }} ❤️
                 </div>
-
+                <div>
+                  {{ article.comments_count }} 💬
+                </div>
                 <button class="btn btn-ghost btn-sm">Read more →</button>
               </div>
             </div>
