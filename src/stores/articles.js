@@ -5,25 +5,39 @@ const API_BASE = import.meta.env.VITE_API_BASE;
 
 export const useArticleStore = defineStore("article", {
   state: () => ({
-    articles: [],
-    filteredArticles: [], // Add this to store filtered results
-    searchQuery: "", // Add this to store search query
-    currentArticle: null,
-    loading: false,
-    error: null,
-    currentPage: 1,
-    perPage: 3,
-    totalPages: 1,
-    total: 0,
-    articleLikesCount: 0,
-    articleCommentsCount: 0,
+    articles: [], // Tutti gli articoli caricati
+    filteredArticles: [], // Articoli filtrati in base alla ricerca
+    searchQuery: "", // Query di ricerca
+    currentArticle: null, // Articolo attualmente selezionato
+    loading: false, // Stato di caricamento
+    error: null, // Messaggio di errore
+    currentPage: 1, // Pagina corrente
+    perPage: 3, // Numero di articoli per pagina
+    totalPages: 1, // Numero totale di pagine
+    total: 0, // Numero totale di articoli
   }),
 
+  getters: {
+    // Articoli da visualizzare nella pagina corrente
+    currentPageArticles(state) {
+      const start = (state.currentPage - 1) * state.perPage;
+      const end = start + state.perPage;
+      return state.filteredArticles.slice(start, end);
+    },
+
+    // Verifica se la ricerca non restituisce risultati
+    hasNoResults(state) {
+      return state.filteredArticles.length === 0 && state.searchQuery.trim() !== "";
+    },
+  },
+
   actions: {
-    // Add the search function
-    async searchArticles() {
-      if (!this.searchQuery.trim()) {
-        this.filteredArticles = this.articles;
+    // Funzione per cercare articoli
+    searchArticles() {
+      const query = this.searchQuery.trim().toLowerCase();
+
+      if (!query) {
+        this.resetSearch(); // Ripristina tutti gli articoli se la query è vuota
         return;
       }
 
@@ -40,35 +54,45 @@ export const useArticleStore = defineStore("article", {
       this.currentPage = 1;
     },
 
-    // Modify fetchArticles to work with filtered results
-    async fetchArticles(page = 1) {
+    // Cambia pagina
+    changePage(newPage) {
+      if (newPage >= 1 && newPage <= this.totalPages) {
+        this.currentPage = newPage;
+      }
+    },
+
+    // Carica gli articoli dal server
+    async fetchArticles() {
       this.loading = true;
       try {
         const response = await axios.get(API_BASE, {
           params: {
             action: "get_articles",
-            page,
-            per_page: this.perPage,
           },
           withCredentials: true,
         });
 
         if (response.data.success) {
           this.articles = response.data.articles;
-          this.filteredArticles = this.articles; // Initialize filtered articles
-          this.currentPage = response.data.current_page;
-          this.totalPages = response.data.last_page;
+          this.filteredArticles = [...this.articles]; // Inizializza articoli filtrati
           this.total = response.data.total;
+          this.totalPages = Math.ceil(this.total / this.perPage);
         } else {
           throw new Error(response.data.message || "Failed to fetch articles");
         }
       } catch (error) {
         this.error = error.message || "Failed to fetch articles";
-        throw error;
       } finally {
         this.loading = false;
       }
     },
+
+    // Svuota la ricerca
+    clearSearch() {
+      this.searchQuery = "";
+      this.resetSearch();
+    },
+  
 
     async toggleFavorite() {
       const user = JSON.parse(localStorage.getItem("user"));

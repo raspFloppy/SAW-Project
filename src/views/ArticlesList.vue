@@ -1,36 +1,29 @@
 <script setup>
-import { onMounted, computed, watch } from 'vue';
+import { onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useArticleStore } from '@/stores/articles';
-import { useAuthStore } from '@/stores/auth';
 import { formatDate } from '@/utils/utils';
 import Navbar from '@/components/Navbar.vue';
 
 const router = useRouter();
 const articleStore = useArticleStore();
-const authStore = useAuthStore();
-const isAdmin = computed(() => authStore.isAdmin);
 
-// Add the searchArticles function here
+// Funzioni per ricerca e paginazione
 const searchArticles = () => {
   articleStore.searchArticles();
 };
 
-watch(
-  () => authStore.$state,
-  (newState) => {
-    isAdmin.value;
-    articleStore.fetchArticles(articleStore.currentPage);
-  },
-  { immediate: true }
-);
+const clearSearch = () => {
+  articleStore.clearSearch();
+};
 
 async function changePage(page) {
-  await articleStore.fetchArticles(page);
+  articleStore.changePage(page);
 }
 
+// Carica gli articoli al montaggio del componente
 onMounted(async () => {
-  await articleStore.fetchArticles(1);
+  await articleStore.fetchArticles();
 });
 </script>
 
@@ -44,18 +37,32 @@ onMounted(async () => {
       </template>
     </Navbar>
     <div class="container mx-auto p-8">
+      <!-- Barra di Ricerca -->
       <div class="flex justify-center mb-6">
-      <input
-        v-model="articleStore.searchQuery"
-        type="text"
-        class="input input-bordered w-full max-w-md"
-        placeholder="Search articles..."/>
-        <button @click="searchArticles" class="btn btn-primary ml-2">Search</button>
+        <div class="relative w-full max-w-md">
+          <input
+            v-model="articleStore.searchQuery"
+            type="text"
+            class="input input-bordered w-full pr-10"
+            placeholder="Search articles..."
+            @input="searchArticles"
+          />
+          <button
+            v-if="articleStore.searchQuery"
+            @click="clearSearch"
+            class="absolute right-3 top-1/2 -translate-y-1/2 btn btn-ghost btn-sm"
+          >
+            ×
+          </button>
+        </div>
       </div>
+
+      <!-- Stato di Caricamento -->
       <div v-if="articleStore.loading" class="flex justify-center">
         <span class="loading loading-spinner loading-lg"></span>
       </div>
 
+      <!-- Stato di Errore -->
       <div v-else-if="articleStore.error" class="alert alert-error">
         <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -64,9 +71,17 @@ onMounted(async () => {
         <span>{{ articleStore.error }}</span>
       </div>
 
+      <!-- Nessun Risultato -->
+      <div v-else-if="articleStore.hasNoResults" class="text-center my-4">
+        No articles found for your search.
+      </div>
+
+      <!-- Lista degli Articoli -->
       <div v-else>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div v-for="article in articleStore.filteredArticles" :key="article.id"
+          <div
+            v-for="article in articleStore.currentPageArticles"
+            :key="article.id"
             class="card bg-base-100 shadow-xl hover:shadow-2xl transition-shadow cursor-pointer"
             @click="router.push(`/article/${article.id}`)">
             <div class="card-body">
@@ -84,14 +99,18 @@ onMounted(async () => {
           </div>
         </div>
 
+        <!-- Paginazione -->
         <div class="flex flex-col items-center mt-8">
           <div class="join grid grid-cols-2 w-full max-w-md">
             <button class="join-item btn btn-outline" :disabled="articleStore.currentPage === 1"
               @click="changePage(articleStore.currentPage - 1)">
               Previous page
             </button>
-            <button class="join-item btn btn-outline" :disabled="articleStore.currentPage === articleStore.totalPages"
-              @click="changePage(articleStore.currentPage + 1)">
+            <button
+              class="join-item btn btn-outline"
+              :disabled="articleStore.currentPage === articleStore.totalPages"
+              @click="changePage(articleStore.currentPage + 1)"
+            >
               Next page
             </button>
           </div>
