@@ -2,10 +2,12 @@
 import { computed } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import AvatarButton from './components/AvatarButton.vue';
+import Footer from './components/Footer.vue';
 
 export default {
   components: {
-    AvatarButton
+    AvatarButton,
+    Footer
   },
   setup() {
     const authStore = useAuthStore()
@@ -34,9 +36,15 @@ export default {
       </div>
     </template>
   </nav>
+
   <main>
     <RouterView />
   </main>
+
+  <footer>
+    <Footer />
+  </footer>
+
 </template>
 
 <style scoped>

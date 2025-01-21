@@ -1,11 +1,14 @@
 <?php
 require_once 'database.php';
 require_once 'AuthController.php';
+require_once 'session_config.php';
+
+init_session();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['email'], $_POST['pass'])) {
         $authController = new AuthController();
-        $email = filter_var(trim($_POST['email']), FILTER_SANITIZE_EMAIL);
+        $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
         $password = trim($_POST['pass']);
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {

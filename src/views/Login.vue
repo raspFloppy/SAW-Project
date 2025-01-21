@@ -70,9 +70,10 @@ export default {
             </label>
             <input v-model="formData.password" type="password" name="password" id="password" autocomplete="on"
               placeholder="password" class="input input-bordered" required />
-            <label class="label">
-              <a href="#" class="label-text-alt link link-hover">Forgot password?</a>
-            </label>
+            <div class="mt-1 label-text-alt">
+              <span class="text-base-content">Don't have an account? </span>
+              <router-link to="/registration" class=" link link-hover link-primary">Register</router-link>
+            </div>
           </div>
           <div class="form-control mt-6">
             <button class="btn btn-primary" type="submit">Login</button>

@@ -6,6 +6,7 @@ const API_BASE = import.meta.env.VITE_API_BASE;
 export const useArticleStore = defineStore("article", {
   state: () => ({
     articles: [],
+    allArticles: [],
     currentArticle: null,
     loading: false,
     error: null,
@@ -37,6 +38,27 @@ export const useArticleStore = defineStore("article", {
           this.total = response.data.total;
         } else {
           throw new Error(response.data.message || "Failed to fetch articles");
+        }
+      } catch (error) {
+        this.error = error.message || "Failed to fetch articles";
+        throw error;
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async fetchAllArticles() {
+      this.loading = true;
+      try {
+        const response = await axios.get(API_BASE, {
+          params: {
+            action: "get_all_articles",
+          },
+          withCredentials: true,
+        });
+
+        if (response.data.success) {
+          this.allArticles = response.data.all_articles;
         }
       } catch (error) {
         this.error = error.message || "Failed to fetch articles";

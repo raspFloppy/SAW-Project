@@ -1,13 +1,15 @@
 <?php
-
 require_once 'AuthController.php';
+require_once 'session_config.php';
+
+init_session();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $authController = new AuthController();
 
     $firstname = trim($_POST['firstname']);
     $lastname = trim($_POST['lastname']);
-    $email = trim($_POST['email']);
+    $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
 
     $result = $authController->update_profile($firstname, $lastname, $email);
     echo json_encode($result);

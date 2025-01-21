@@ -56,6 +56,35 @@ class ArticleController extends AuthController
         }
     }
 
+    public function get_all_articles()
+    {
+        try {
+            $stmt = $this->conn->prepare("
+                SELECT Article.*,
+                (SELECT COUNT(UserFavorite.article_id) 
+                FROM UserFavorite 
+                WHERE UserFavorite.article_id = Article.id) AS favorite_count,
+                (SELECT COUNT(UserDislikes.article_id) 
+                FROM UserDislikes 
+                WHERE UserDislikes.article_id = Article.id) AS dislikes,
+                (SELECT COUNT(Comment.article_id) 
+                FROM Comment 
+                WHERE Comment.article_id = Article.id) AS comments_count
+                FROM Article
+                ORDER BY Article.created_at DESC
+            ");
+            $stmt->execute();
+            $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            return [
+                'success' => true,
+                'all_articles' => $articles
+            ];
+        } catch (PDOException $e) {
+            return ['success' => false, 'message' => 'Database error: ' . $e->getMessage()];
+        }
+    }
+
     public function get_article(int $article_id, int $user_id = null)
     {
         try {

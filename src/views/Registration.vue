@@ -82,11 +82,16 @@ export default {
             <input v-model="formData.password" type="password" placeholder="password" class="input input-bordered"
               minlength="8" required />
           </div>
+          <div class="mt-1 label-text-alt">
+            <span>Already have an account? </span>
+            <router-link to="/login" class="link link-hover link-primary">Login</router-link>
+          </div>
           <div class="form-control mt-6">
             <button type="submit" class="btn btn-primary">Register</button>
           </div>
         </form>
       </div>
     </div>
+
   </div>
 </template>

@@ -1,5 +1,8 @@
 <?php
 require_once 'AuthController.php';
+require_once 'session_config.php';
+
+init_session();
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $authController = new AuthController();

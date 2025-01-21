@@ -1,6 +1,9 @@
 <?php
 require_once 'database.php';
 require_once 'AuthController.php';
+require_once 'session_config.php';
+
+init_session();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['email'], $_POST['firstname'], $_POST['lastname'], $_POST['pass'], $_POST['confirm'], $_POST['submit'])) {
