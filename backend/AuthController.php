@@ -199,4 +199,9 @@ class AuthController
     {
         return isset($_SESSION['loggedin']) && $_SESSION['loggedin'] === true;
     }
+
+    protected function isUserAdmin(): bool
+    {
+        return isset($_SESSION['type']) && $_SESSION['type'] === 'admin';
+    }
 }

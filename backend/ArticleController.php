@@ -22,8 +22,7 @@ class ArticleController extends AuthController
 
             $count_stmt = $this->conn->query("SELECT COUNT(*) FROM Article");
             $total = $count_stmt->fetchColumn();
-
-            $stmt = $this->conn->prepare("SELECT * FROM Article ORDER BY created_at DESC LIMIT :limit OFFSET :offset");
+            $stmt = $this->conn->prepare("SELECT Article.*, COUNT(UserFavorite.article_id) AS favorite_count FROM Article LEFT JOIN UserFavorite ON Article.id = UserFavorite.article_id GROUP BY Article.id ORDER BY Article.created_at DESC LIMIT :limit OFFSET :offset;");
             $stmt->bindValue(':limit', $per_page, PDO::PARAM_INT);
             $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
             $stmt->execute();
@@ -49,9 +48,11 @@ class ArticleController extends AuthController
                 $query = "
                 SELECT 
                     a.*,
-                    CASE WHEN uf.article_id IS NOT NULL THEN TRUE ELSE FALSE END as is_favorite
+                    CASE WHEN uf.article_id IS NOT NULL THEN TRUE ELSE FALSE END as is_favorite,
+                    CASE WHEN ud.article_id IS NOT NULL THEN TRUE ELSE FALSE END as is_disliked
                 FROM Article a
                 LEFT JOIN UserFavorite uf ON a.id = uf.article_id AND uf.user_id = :user_id
+                LEFT JOIN UserDislikes ud ON a.id = ud.article_id AND ud.user_id = :user_id
                 WHERE a.id = :article_id";
 
                 $stmt = $this->conn->prepare($query);
@@ -78,6 +79,7 @@ class ArticleController extends AuthController
 
             if ($article) {
                 $article['is_favorite'] = (bool)$article['is_favorite'];
+                $article['is_disliked'] = (bool)$article['is_disliked'];
                 return ['success' => true, 'article' => $article];
             }
 
@@ -90,14 +92,49 @@ class ArticleController extends AuthController
     public function set_favorite(int $article_id, int $user_id)
     {
         try {
-            $check_stmt = $this->conn->prepare("SELECT * FROM UserFavorite WHERE article_id = :article_id AND user_id = :user_id");
-            $check_stmt->execute(['article_id' => $article_id, 'user_id' => $user_id]);
-            $favorite = $check_stmt->fetch(PDO::FETCH_ASSOC);
+            $stmt = $this->conn->prepare("SELECT * FROM UserFavorite WHERE article_id = :article_id AND user_id = :user_id");
+            $stmt->execute(['article_id' => $article_id, 'user_id' => $user_id]);
+            $favorite = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            $stmt = $this->conn->prepare("SELECT * FROM UserDislikes WHERE article_id = :article_id AND user_id = :user_id");
+            $stmt->execute(['article_id' => $article_id, 'user_id' => $user_id]);
+            $dislike = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($favorite) {
                 $stmt = $this->conn->prepare("DELETE FROM UserFavorite WHERE article_id = :article_id AND user_id = :user_id");
             } else {
                 $stmt = $this->conn->prepare("INSERT INTO UserFavorite (article_id, user_id) VALUES (:article_id, :user_id)");
+                if ($dislike) {
+                    $stmt2 = $this->conn->prepare("DELETE FROM UserDislikes WHERE article_id = :article_id AND user_id = :user_id");
+                    $stmt2->execute(['article_id' => $article_id, 'user_id' => $user_id]);
+                }
+            }
+            $stmt->execute(['article_id' => $article_id, 'user_id' => $user_id]);
+            return ['success' => true, 'message' => 'Article preference updated'];
+        } catch (PDOException $e) {
+            return ['success' => false, 'message' => 'Database error: ' . $e->getMessage()];
+        }
+    }
+
+    public function set_dislike(int $article_id, int $user_id)
+    {
+        try {
+            $stmt = $this->conn->prepare("SELECT * FROM UserDislikes WHERE article_id = :article_id AND user_id = :user_id");
+            $stmt->execute(['article_id' => $article_id, 'user_id' => $user_id]);
+            $dislike = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            $check_stmt = $this->conn->prepare("SELECT * FROM UserFavorite WHERE article_id = :article_id AND user_id = :user_id");
+            $check_stmt->execute(['article_id' => $article_id, 'user_id' => $user_id]);
+            $favorite = $check_stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($dislike) {
+                $stmt = $this->conn->prepare("DELETE FROM UserDislikes WHERE article_id = :article_id AND user_id = :user_id");
+            } else {
+                $stmt = $this->conn->prepare("INSERT INTO UserDislikes (article_id, user_id) VALUES (:article_id, :user_id)");
+                if ($favorite) {
+                    $stmt2 = $this->conn->prepare("DELETE FROM UserFavorite WHERE article_id = :article_id AND user_id = :user_id");
+                    $stmt2->execute(['article_id' => $article_id, 'user_id' => $user_id]);
+                }
             }
             $stmt->execute(['article_id' => $article_id, 'user_id' => $user_id]);
             return ['success' => true, 'message' => 'Article preference updated'];
@@ -134,6 +171,18 @@ class ArticleController extends AuthController
     {
         try {
             $stmt = $this->conn->prepare("SELECT COUNT(*) FROM UserFavorite WHERE article_id = :article_id");
+            $stmt->execute(['article_id' => $article_id]);
+            $count = $stmt->fetchColumn();
+            return ['success' => true, 'count' => $count];
+        } catch (PDOException $e) {
+            return ['success' => false, 'message' => 'Database error: ' . $e->getMessage()];
+        }
+    }
+
+    public function get_article_dislikes_count(int $article_id)
+    {
+        try {
+            $stmt = $this->conn->prepare("SELECT COUNT(*) FROM UserDislikes WHERE article_id = :article_id");
             $stmt->execute(['article_id' => $article_id]);
             $count = $stmt->fetchColumn();
             return ['success' => true, 'count' => $count];

@@ -5,7 +5,6 @@ require_once 'AuthController.php';
 
 class AdminController extends AuthController
 {
-
     private $db;
     private $conn;
     private $auth;
@@ -17,24 +16,137 @@ class AdminController extends AuthController
         $this->auth = new AuthController();
     }
 
-    public function get_all_users(int $admin_id)
+    public function get_all_users()
     {
-        if (!$this->auth->isUserLogged()) {
-            return ['success' => false, 'message' => 'A User already logged in'];
+        if (!$_SESSION['id']) {
+            return ['success' => false, 'message' => 'User is not logged'];
         }
+
+        if (!$this->auth->isUserAdmin()) {
+            return ['success' => false, 'message' => 'User in not admin'];
+        }
+        $id = $_SESSION['id'];
 
         try {
             $this->conn->beginTransaction();
 
-            $stmt = $this->conn->prepare("SELECT * FROM User WHERE admin_id != :admin_id");
-            $stmt->execute(['admin_id' => $admin_id]);
-            if ($stmt->rowCount() > 0) {
+            $stmt = $this->conn->prepare("SELECT id, firstname, lastname, email, created_at, type  FROM User WHERE id != :id");
+            $stmt->execute(['id' => $id]);
+            if ($stmt->rowCount() <= 0) {
                 $this->conn->rollBack();
                 return ['success' => false, 'message' => 'No users found'];
             }
             $this->conn->commit();
             $result = $stmt->fetchAll();
-            return ['success' => true, 'message' => 'Users found', 'data' => $result];
+            return ['success' => true, 'message' => 'Users found', 'users' => $result];
+        } catch (PDOException $e) {
+            $this->conn->rollBack();
+            return ['success' => false, 'message' => 'Database error: ' . $e->getMessage()];
+        }
+    }
+
+    public function count_all_users()
+    {
+        try {
+            $stmt = $this->conn->query("SELECT COUNT(*) FROM User");
+            $count = $stmt->fetchColumn();
+            return ['success' => true, 'count' => $count];
+        } catch (PDOException $e) {
+            return ['success' => false, 'message' => 'Database error: ' . $e->getMessage()];
+        }
+    }
+
+    public function count_all_dislikes()
+    {
+        try {
+            $stmt = $this->conn->query("SELECT COUNT(*) FROM UserDislikes");
+            $count = $stmt->fetchColumn();
+            return ['success' => true, 'count' => $count];
+        } catch (PDOException $e) {
+            return ['success' => false, 'message' => 'Database error: ' . $e->getMessage()];
+        }
+    }
+
+    public function count_all_favorites()
+    {
+        try {
+            $stmt = $this->conn->query("SELECT COUNT(*) FROM UserFavorite");
+            $count = $stmt->fetchColumn();
+            return ['success' => true, 'count' => $count];
+        } catch (PDOException $e) {
+            return ['success' => false, 'message' => 'Database error: ' . $e->getMessage()];
+        }
+    }
+
+    public function update_article(int $article_id, int $admin_id, string $title, string $content, string $author)
+    {
+        if (empty($title) || empty($content) || empty($author)) {
+            return ['success' => false, 'message' => 'Title, content and author are required'];
+        }
+
+        if (!$this->auth->isUserLogged()) {
+            return ['success' => false, 'message' => 'User not logged in'];
+        }
+
+        if ($admin_id !== $_SESSION['id']) {
+            return ['success' => false, 'message' => 'User not authorized'];
+        }
+
+        if ($_SESSION['type'] !== 'admin') {
+            return ['success' => false, 'message' => 'User not an Admin'];
+        }
+
+        try {
+            $this->conn->beginTransaction();
+
+            $stmt = $this->conn->prepare("UPDATE Article SET title = :title, content = :content, author = :author WHERE id = :article_id");
+            $stmt->execute(['title' => $title, 'content' => $content, 'author' => $author, 'article_id' => $article_id]);
+            if ($stmt->rowCount() === 0) {
+                $this->conn->rollBack();
+                return ['success' => false, 'message' => 'Article not found'];
+            }
+            $this->conn->commit();
+            return ['success' => true, 'message' => 'Article updated'];
+        } catch (PDOException $e) {
+            $this->conn->rollBack();
+            return ['success' => false, 'message' => 'Database error: ' . $e->getMessage()];
+        }
+    }
+
+    public function delete_article($article_id)
+    {
+        if (!$this->auth->isUserLogged()) {
+            return ['success' => false, 'message' => 'User not logged in'];
+        }
+
+        if ($_SESSION['type'] !== 'admin') {
+            return ['success' => false, 'message' => 'User not an Admin'];
+        }
+
+        try {
+            $this->conn->beginTransaction();
+
+            $tables = [
+                'Comment',
+                'UserDislikes',
+                'UserFavorite'
+            ];
+
+            foreach ($tables as $table) {
+                $stmt = $this->conn->prepare("DELETE FROM $table WHERE article_id = :article_id");
+                $stmt->execute(['article_id' => $article_id]);
+            }
+
+            $stmt = $this->conn->prepare("DELETE FROM Article WHERE id = :article_id");
+            $stmt->execute(['article_id' => $article_id]);
+
+            if ($stmt->rowCount() === 0) {
+                $this->conn->rollBack();
+                return ['success' => false, 'message' => 'Article not found'];
+            }
+
+            $this->conn->commit();
+            return ['success' => true, 'message' => 'Article and related records deleted'];
         } catch (PDOException $e) {
             $this->conn->rollBack();
             return ['success' => false, 'message' => 'Database error: ' . $e->getMessage()];

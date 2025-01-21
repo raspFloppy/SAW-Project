@@ -117,6 +117,34 @@ switch ($action) {
         echo json_encode($result);
         break;
 
+    case 'set_dislike':
+        $article_id = $data['article_id'] ?? null;
+        $user_id = $data['user_id'] ?? null;
+        if (!$article_id) {
+            echo json_encode(['success' => false, 'message' => 'Invalid article ID']);
+            break;
+        }
+
+        if (!$user_id) {
+            echo json_encode(['success' => false, 'message' => 'Invalid user ID']);
+            break;
+        }
+
+        $result = $articles_controller->set_dislike($article_id, $user_id);
+        echo json_encode($result);
+        break;
+
+    case 'get_article_dislikes_count':
+        $article_id = $_GET['article_id'] ?? null;
+        if (!$article_id) {
+            echo json_encode(['success' => false, 'message' => 'Invalid article ID']);
+            break;
+        }
+
+        $result = $articles_controller->get_article_dislikes_count($article_id);
+        echo json_encode($result);
+        break;
+
     case 'get_favorites':
         $user_id = $data['user_id'] ?? null;
         if (!$user_id) {
@@ -197,13 +225,7 @@ switch ($action) {
         break;
 
     case 'get_all_users':
-        $admin_id = $data['admin_id'] ?? null;
-        if (!$admin_id) {
-            echo json_encode(['success' => false, 'message' => 'Invalid admin ID']);
-            break;
-        }
-
-        $result = $admin_controller->get_all_users($admin_id);
+        $result = $admin_controller->get_all_users();
         echo json_encode($result);
         break;
 
@@ -229,6 +251,54 @@ switch ($action) {
         }
 
         $result = $articles_controller->writeArticle($title, $content, $author, $author_id);
+        echo json_encode($result);
+        break;
+
+    case 'update_article':
+        $article_id = $data['article_id'] ?? null;
+        $admin_id = $data['admin_id'] ?? null;
+        $title = $data['title'] ?? null;
+        $content = $data['content'] ?? null;
+        $author = $data['author'] ?? null;
+
+        if (!$article_id) {
+            echo json_encode(['success' => false, 'message' => 'Invalid article ID']);
+            break;
+        }
+
+        if (!$admin_id) {
+            echo json_encode(['success' => false, 'message' => 'Invalid admin ID']);
+            break;
+        }
+
+        if (!$title) {
+            echo json_encode(['success' => false, 'message' => 'Invalid title']);
+            break;
+        }
+
+        if (!$content) {
+            echo json_encode(['success' => false, 'message' => 'Invalid content']);
+            break;
+        }
+
+        if (!$author) {
+            echo json_encode(['success' => false, 'message' => 'Invalid author']);
+            break;
+        }
+
+        $result = $admin_controller->update_article($article_id, $admin_id, $title, $content, $author);
+        echo json_encode($result);
+        break;
+
+    case 'delete_article':
+        $article_id = $data['article_id'] ?? null;
+
+        if (!$article_id) {
+            echo json_encode(['success' => false, 'message' => 'Invalid article ID']);
+            break;
+        }
+
+        $result = $admin_controller->delete_article($article_id);
         echo json_encode($result);
         break;
     default:

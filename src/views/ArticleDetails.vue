@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useArticleStore } from '@/stores/articles';
 import { formatDate } from '@/utils/utils';
 import FavoriteButton from '@/components/FavoriteButton.vue';
+import DislikeButton from '@/components/DislikeButton.vue';
 import ArticleComments from './ArticleComments.vue';
 
 const route = useRoute();
@@ -21,6 +22,7 @@ onMounted(async () => {
     await articleStore.fetchArticleById(route.params.id);
     await articleStore.updateArticleComments();
     await articleStore.updateArticleLikesCount();
+    await articleStore.updateArticleDislikesCount();
     await articleStore.updateArticleCommentsCount();
 });
 
@@ -49,6 +51,10 @@ onMounted(async () => {
                     <div class="flex items-center gap-0">
                         {{ articleStore.articleLikesCount }}
                         <FavoriteButton :articleId="articleStore.currentArticle.id" />
+                    </div>
+                    <div class="flex items-center gap-0">
+                        {{ articleStore.articleDislikesCount }}
+                        <DislikeButton :articleId="articleStore.currentArticle.id" />
                     </div>
 
                     <div class="flex items-center gap-1">

@@ -6,12 +6,10 @@ import { useAuthStore } from '@/stores/auth';
 import { formatDate } from '@/utils/utils';
 import Navbar from '@/components/Navbar.vue';
 
-
 const router = useRouter();
 const articleStore = useArticleStore();
 const authStore = useAuthStore();
 const isAdmin = computed(() => authStore.isAdmin);
-
 
 watch(
   () => authStore.$state,
@@ -22,12 +20,12 @@ watch(
   { immediate: true }
 )
 
-function changePage(page) {
-  articleStore.fetchArticles(page);
+async function changePage(page) {
+  await articleStore.fetchArticles(page);
 };
 
-onMounted(() => {
-  articleStore.fetchArticles(1);
+onMounted(async () => {
+  await articleStore.fetchArticles(1);
 });
 </script>
 
@@ -37,11 +35,6 @@ onMounted(() => {
       <template #left>
         <div class="flex-1">
           <a class="btn btn-ghost normal-case text-xl">Articles</a>
-        </div>
-      </template>
-      <template #right v-if="isAdmin">
-        <div class="flex-1">
-          <a class="btn btn-ghost normal-case text-xl" @click="router.push('/article-editor')">Write article</a>
         </div>
       </template>
     </Navbar>
@@ -68,6 +61,9 @@ onMounted(() => {
               <p class="text-base-content/70">By {{ article.author }}</p>
               <div class="card-actions justify-between items-center mt-4">
                 <div class="badge badge-outline">{{ formatDate(article.created_at) }}</div>
+                <div>
+                  {{ article.favorite_count }}
+                </div>
 
                 <button class="btn btn-ghost btn-sm">Read more →</button>
               </div>

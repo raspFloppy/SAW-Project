@@ -28,6 +28,14 @@ CREATE TABLE IF NOT EXISTS UserFavorite (
     FOREIGN KEY (article_id) REFERENCES Article(id)
 );
 
+CREATE TABLE IF NOT EXISTS UserDislikes (
+    user_id INT,
+    article_id INT,
+    PRIMARY KEY (user_id, article_id),
+    FOREIGN KEY (user_id) REFERENCES User(id),
+    FOREIGN KEY (article_id) REFERENCES Article(id)
+);
+
 CREATE TABLE IF NOT EXISTS Comment (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT,

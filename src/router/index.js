@@ -1,94 +1,86 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import { useAuthStore} from '@/stores/auth'
-import Registration from '@/views/Registration.vue';
-import Login from '@/views/Login.vue';
-import Home from '@/views/Home.vue';
-import PageNotFound from '@/views/PageNotFound.vue';
-import Dashboard from '@/views/Dashboard.vue';
-import ArticlesList from '@/views/ArticlesList.vue';
-import ArticleDetails from '@/views/ArticleDetails.vue';
-import FavoriteArticles from '@/views/FavoriteArticles.vue';
-import AdminDashboard from '@/views/AdminDashboard.vue';
-import ArticleEditor from '@/views/ArticleEditor.vue';
+import { createRouter, createWebHistory } from "vue-router";
+import { useAuthStore } from "@/stores/auth";
+import Registration from "@/views/Registration.vue";
+import Login from "@/views/Login.vue";
+import Home from "@/views/Home.vue";
+import PageNotFound from "@/views/PageNotFound.vue";
+import Dashboard from "@/views/Dashboard.vue";
+import ArticlesList from "@/views/ArticlesList.vue";
+import ArticleDetails from "@/views/ArticleDetails.vue";
+import FavoriteArticles from "@/views/FavoriteArticles.vue";
+import AdminDashboard from "@/views/AdminDashboard.vue";
 
 const routes = [
-  {path: '/', component: Home},
+  { path: "/", component: Home },
   {
-    path: '/registration', 
-    component: Registration, 
-    meta: {requiresGuest: true}
+    path: "/registration",
+    component: Registration,
+    meta: { requiresGuest: true },
   },
   {
-    path: '/login', 
-    component: Login, 
-    meta: {requiresGuest: true}
+    path: "/login",
+    component: Login,
+    meta: { requiresGuest: true },
   },
   {
-    path: '/dashboard',
+    path: "/dashboard",
     component: Dashboard,
-    meta: {requiresAuth: true},
+    meta: { requiresAuth: true },
   },
   {
-    path: '/admin_dashboard',
+    path: "/admin_dashboard",
     component: AdminDashboard,
-    meta: {requiresAuth: true},
+    meta: { requiresAuth: true },
   },
   {
-    path: '/favorite-articles',
+    path: "/favorite-articles",
     component: FavoriteArticles,
-    meta: {requiresAuth: true},
+    meta: { requiresAuth: true },
   },
   {
-    path: '/articles',
+    path: "/articles",
     component: ArticlesList,
   },
   {
-    path: '/article-editor',
-    component: ArticleEditor,
-    meta: {requiresAuth: true},
-  },
-  {
-    path: '/article/:id',
+    path: "/article/:id",
     component: ArticleDetails,
   },
   {
-    path: '/:pathMatch(.*)*',
-    name: 'PageNotFound', 
-    component: PageNotFound
+    path: "/:pathMatch(.*)*",
+    name: "PageNotFound",
+    component: PageNotFound,
   },
-]
+];
 
 const router = createRouter({
   history: createWebHistory(),
-  routes
-})
-
+  routes,
+});
 
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore();
 
-  if(to.meta.requiresGuest) {
+  if (to.meta.requiresGuest) {
     try {
       authStore.validateSession();
-      
-      if(authStore.isLoggedIn) {
-        next('/dashboard');
+
+      if (authStore.isLoggedIn) {
+        next("/dashboard");
         return;
       }
-
     } catch (error) {
       console.error(error);
     }
   }
 
-  if(to.meta.requiresAuth) {
-    if(!authStore.isLoggedIn) {
-      next('/login');
+  if (to.meta.requiresAuth) {
+    if (!authStore.isLoggedIn) {
+      next("/login");
       return;
     }
   }
 
   next();
-})
+});
 
-export default router
+export default router;

@@ -91,7 +91,7 @@ onMounted(async () => {
                         User Dashboard
                     </RouterLink>
                     <RouterLink v-if="auth.isAdmin" to='/admin_dashboard' class="btn btn-ghost normal-case text-xl">
-                        AdminDashboard
+                        Admin Dashboard
                     </RouterLink>
                 </div>
             </template>
