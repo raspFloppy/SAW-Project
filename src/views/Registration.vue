@@ -19,7 +19,8 @@ export default {
         firstname: '',
         lastname: '',
         email: '',
-        password: '',
+        pass: '',
+        confirm: '',
       },
     };
   },
@@ -79,8 +80,15 @@ export default {
             <label class="label">
               <span class="label-text">Password</span>
             </label>
-            <input v-model="formData.password" type="password" placeholder="password" class="input input-bordered"
+            <input v-model="formData.pass" type="password" placeholder="password" class="input input-bordered"
               minlength="8" required />
+          </div>
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text">Confirm Password</span>
+            </label>
+            <input v-model="formData.confirm" type="password" placeholder="confirm password"
+              class="input input-bordered" minlength="8" required />
           </div>
           <div class="mt-1 label-text-alt">
             <span>Already have an account? </span>

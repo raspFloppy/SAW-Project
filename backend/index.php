@@ -21,27 +21,49 @@ $admin_controller = new AdminController();
 $data = json_decode(file_get_contents('php://input'), true);
 $action = $_GET['action'] ?? '';
 
-//TODO:  sanitize input data sqlinjection, xss, csrf
 switch ($action) {
     case '':
         echo json_encode(['succcess' => true, 'message' => 'Welcome to the API']);
         break;
 
     case 'register':
+        $firstname = htmlspecialchars(trim($data['firstname'] ?? ''));
+        $lastname = htmlspecialchars(trim($data['lastname'] ?? ''));
+        $email = filter_var($data['email'] ?? '', FILTER_SANITIZE_EMAIL);
+        $password = htmlspecialchars(trim($data['pass'] ?? ''));
+        $confirm = htmlspecialchars(trim($data['confirm'] ?? ''));
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            echo json_encode(['success' => false, 'message' => 'Invalid email format']);
+            break;
+        }
+
+        if (strlen($password) < 8) {
+            echo json_encode(['success' => false, 'message' => 'Password too short minimum 8 characters']);
+            break;
+        }
+
+        if ($password !== $confirm) {
+            echo json_encode(['success' => false, 'message' => 'Passwords do not match']);
+            break;
+        }
+
         $result = $controller->register(
-            $data['firstname'] ?? '',
-            $data['lastname'] ?? '',
-            $data['email'] ?? '',
-            $data['password'] ?? ''
+            $firstname,
+            $lastname,
+            $email,
+            $password
         );
         echo json_encode($result);
         break;
 
     case 'login':
-        $result = $controller->login(
+        $email = filter_var($data['email'] ?? '', FILTER_SANITIZE_EMAIL);
+        $password = htmlspecialchars(trim($data['password']) ?? '');
 
-            $data['email'] ?? '',
-            $data['password'] ?? ''
+        $result = $controller->login(
+            $email,
+            $password
         );
         echo json_encode($result);
         break;
@@ -57,10 +79,19 @@ switch ($action) {
         break;
 
     case 'update_profile':
+        $firstname = htmlspecialchars(trim($data['firstname'] ?? ''));
+        $lastname = htmlspecialchars(trim($data['lastname'] ?? ''));
+        $email = filter_var($data['email'] ?? '', FILTER_SANITIZE_EMAIL);
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            echo json_encode(['success' => false, 'message' => 'Invalid email format']);
+            break;
+        }
+
         $result = $controller->update_profile(
-            $data['firstname'] ?? '',
-            $data['lastname'] ?? '',
-            $data['email'] ?? ''
+            $firstname,
+            $lastname,
+            $email
         );
         echo json_encode($result);
         break;
